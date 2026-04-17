@@ -1,0 +1,8 @@
+.env
+credentials.json
+__pycache__/
+*.pyc
+*.pyo
+.railway/
+token.json
+.env.example

@@ -1,0 +1,4 @@
+📅 Fecha,👤 Nombre,📧 Email,📱 Teléfono,🏠 Dirección,🏙️ Ciudad,📮 Código Postal,🌍 País,🛒 Productos,💶 Subtotal,🚚 Envío,💰 Total,✅ Estado,🔑 Stripe ID
+14/04/2026 10:32,Ana García López,ana@email.com,+34 600 123 456,"Calle Mayor, 12 2º A",Madrid,28001,España,"🧂 Sal Negra de Lava ×2 (€17.80) | 🫒 Aceite de Trufa Negra ×1 (€14.90)",€32.70,€4.95,€37.65,✅ Pagado,cs_test_ejemplo123
+14/04/2026 14:15,Carlos Martínez,carlos@email.com,+34 611 987 654,"Av. del Mar, 8 1º B",Barcelona,08003,España,"🥩 Salsa Don Quijote ×3 (€20.70) | 🍯 Frutos Rojos al Oporto ×2 (€19.00) | 🧀 Almogrote con Trufa ×1 (€13.50)",€53.20,€4.95,€58.15,✅ Pagado,cs_test_ejemplo456
+15/04/2026 09:05,María Rodríguez,maria@email.com,+34 622 456 789,"C/ Laurel, 3",Sevilla,41001,España,"🍲 Ossobuco a la Milanesa ×2 (€37.00) | 🫙 Fondo Oscuro de Ternera ×1 (€11.90) | 🐟 Marinera Tradicional ×2 (€11.80)",€60.70,€0.00,€60.70,✅ Pagado,cs_test_ejemplo789

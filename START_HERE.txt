@@ -1,0 +1,183 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║         DON QUIJOTE GOURMET & KIDS — MULTI-CHANNEL ALERT SYSTEM v2.0        ║
+║                          START HERE                                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Welcome to your new multi-channel alert system!
+
+This system adds Email, SMS, Discord, Slack, and Admin Dashboard capabilities
+to your order processing pipeline.
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📁 FILES IN THIS DIRECTORY
+
+CODE
+  alerts.py               — Core alert system (450 lines, production ready)
+  server.py              — Flask app (updated with 6 admin endpoints)
+  .env.example           — Configuration template (copy to .env and edit)
+
+DOCUMENTATION (Read these for setup & reference)
+  README_ALERTS.md       — Overview & quick links (5 min read)
+  SETUP_GUIDE.md         — Quick start (10 min read) ← START HERE
+  QUICK_REFERENCE.md     — Quick lookup card (5 min read)
+  ALERT_SYSTEM.md        — Complete reference (30 min read)
+  UPGRADE_GUIDE.md       — Migration from v1.0 (20 min read)
+  IMPLEMENTATION_SUMMARY — Technical details (15 min read)
+  MANIFEST.md            — Delivery checklist
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 QUICKEST PATH TO PRODUCTION (30 minutes)
+
+1. READ SETUP_GUIDE.md (10 min)
+   This guide has everything you need to get started.
+   It covers: configuration, testing, deployment.
+
+2. COPY .env.example → .env (2 min)
+   cp .env.example .env
+   Then edit .env with your details (see setup guide for help)
+
+3. CONFIGURE YOUR EMAIL (5 min)
+   Get your Gmail App Password from:
+   https://myaccount.google.com/apppasswords
+   Add it to .env as GMAIL_APP_PASSWORD
+
+4. TEST LOCALLY (3 min)
+   python server.py
+   (Should start without errors)
+
+5. TEST WITH A REAL ORDER (5 min)
+   Visit: http://localhost:3456
+   Make test order, verify email received
+
+6. DEPLOY TO RAILWAY (10 min)
+   git commit -m "upgrade to multi-channel alert system"
+   railway up
+   Verify at: https://your-server/health
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 CHOOSE YOUR PATH
+
+PATH A: I Just Want It Working
+  → Read: SETUP_GUIDE.md (10 min)
+  → Time to production: 30 min
+
+PATH B: I Need to Understand Everything
+  → Read: README_ALERTS.md (5 min)
+  → Read: ALERT_SYSTEM.md (30 min)
+  → Read: IMPLEMENTATION_SUMMARY.md (15 min)
+  → Time: 1-2 hours
+
+PATH C: I'm Upgrading from v1.0
+  → Read: UPGRADE_GUIDE.md (20 min)
+  → Review: IMPLEMENTATION_SUMMARY.md (15 min)
+  → Time: 45 min
+
+PATH D: I Need Quick Help on Something
+  → Check: QUICK_REFERENCE.md (find what you need in 5 min)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚡ WHAT YOU GET
+
+EMAIL ALERTS
+  ✓ Multiple recipients (primary, secondary, backup)
+  ✓ Brand-specific routing (Gourmet vs Kids)
+  ✓ Beautiful branded HTML templates
+  ✓ Customer summary + product details
+  ✓ Quick action buttons
+  ✓ Complete logging
+
+SMS ALERTS (Optional)
+  ✓ Twilio integration
+  ✓ Configurable thresholds
+  ✓ Short, urgent messages
+  ✓ Can enable anytime
+
+WEBHOOK ALERTS (Optional)
+  ✓ Discord messages
+  ✓ Slack messages
+  ✓ Custom HTTP endpoint
+  ✓ Can enable anytime
+
+ADMIN DASHBOARD
+  ✓ Real-time order tracking
+  ✓ Revenue statistics
+  ✓ Alert history
+  ✓ System status
+  ✓ API protected with API key
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 ESSENTIAL ENVIRONMENT VARIABLES
+
+Copy .env.example to .env and fill in:
+
+REQUIRED (Email must work)
+  GMAIL_USER=tarapachecovr@gmail.com
+  GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx (16-char app password from Gmail)
+  ALERT_EMAIL_PRIMARY=tarapachecovr@gmail.com
+  KIDS_NOTIFY_EMAIL=hola@donquijotekids.com
+  ADMIN_API_KEY=any_random_32_char_string
+
+OPTIONAL (SMS, Discord, Slack)
+  SMS_ALERT_ENABLED=false (change to true to enable)
+  WEBHOOK_ALERT_ENABLED=false (change to true to enable)
+  ... (see .env.example for all options)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+💡 QUICK TIPS
+
+Getting Gmail App Password?
+  1. Go to https://myaccount.google.com/apppasswords
+  2. Select "Mail" and your device
+  3. Copy the 16-character password
+  4. Paste into .env as GMAIL_APP_PASSWORD
+
+Generating Admin API Key?
+  openssl rand -base64 32
+
+Want to add Discord/Slack later?
+  You can enable webhooks anytime - see SETUP_GUIDE.md
+
+Something not working?
+  Check SETUP_GUIDE.md troubleshooting section
+  Or QUICK_REFERENCE.md for common issues
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✓ WHAT'S DIFFERENT FROM v1.0
+
+✓ Enhanced Email (more recipients, better templates)
+✓ SMS Alerts (optional)
+✓ Webhooks (optional)
+✓ Admin Dashboard (4 new endpoints)
+✓ Alert Logging (audit trail)
+✓ Better Error Handling
+
+✗ NO Breaking Changes
+✗ NO Data Loss
+✗ FULLY Backward Compatible
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 NEXT STEP
+
+→ Open: SETUP_GUIDE.md
+  This is your complete getting-started guide.
+  Everything is explained step-by-step.
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Questions?
+  README_ALERTS.md      — Overview and answers
+  SETUP_GUIDE.md        — Step-by-step instructions
+  QUICK_REFERENCE.md    — Quick lookup
+  ALERT_SYSTEM.md       — Complete documentation
+
+Ready? → Start with SETUP_GUIDE.md
+
+═══════════════════════════════════════════════════════════════════════════════
