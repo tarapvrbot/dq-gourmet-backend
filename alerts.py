@@ -13,6 +13,7 @@ import os
 import json
 import requests
 import smtplib
+import ssl
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -308,8 +309,15 @@ class EmailAlert:
             msg["To"] = ", ".join(recipients)
             msg.attach(MIMEText(html_content, "html"))
 
-            with smtplib.SMTP(AlertConfig.SMTP_HOST, AlertConfig.SMTP_PORT) as server:
-                server.starttls()
+            port = AlertConfig.SMTP_PORT
+            context = ssl.create_default_context()
+            if port == 465:
+                smtp_conn = smtplib.SMTP_SSL(AlertConfig.SMTP_HOST, port, context=context)
+            else:
+                smtp_conn = smtplib.SMTP(AlertConfig.SMTP_HOST, port)
+                smtp_conn.starttls(context=context)
+
+            with smtp_conn as server:
                 server.login(smtp_user, smtp_pass)
                 for recipient in recipients:
                     try:
