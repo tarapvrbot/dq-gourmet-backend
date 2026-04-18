@@ -31,9 +31,21 @@ logger = logging.getLogger("alerts")
 class AlertConfig:
     """Load alert configuration from environment variables."""
 
-    # Email
-    SMTP_USER = os.getenv("GMAIL_USER", "tarapachecovr@gmail.com")
-    SMTP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
+    # Email — Zoho SMTP
+    SMTP_HOST = os.getenv("SMTP_HOST", "smtp.zoho.eu")
+    SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+
+    # Gourmet brand SMTP
+    GOURMET_SMTP_USER = os.getenv("GOURMET_SMTP_USER", "hello@donquijotegourmet.com")
+    GOURMET_SMTP_PASSWORD = os.getenv("GOURMET_SMTP_PASSWORD")
+
+    # Kids brand SMTP
+    KIDS_SMTP_USER = os.getenv("KIDS_SMTP_USER", "hello@donquijotekids.com")
+    KIDS_SMTP_PASSWORD = os.getenv("KIDS_SMTP_PASSWORD")
+
+    # Fallback (legacy)
+    SMTP_USER = os.getenv("SMTP_USER", GOURMET_SMTP_USER)
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", GOURMET_SMTP_PASSWORD)
 
     # Primary alerts
     ALERT_EMAIL_PRIMARY = os.getenv("ALERT_EMAIL_PRIMARY", "tarapachecovr@gmail.com")
@@ -268,8 +280,16 @@ class EmailAlert:
         Send email notification to configured recipients.
         Returns (success: bool, message: str)
         """
-        if not AlertConfig.SMTP_PASSWORD:
-            msg = "GMAIL_APP_PASSWORD not configured - email alert skipped"
+        # Brand-specific SMTP credentials
+        if brand == "kids":
+            smtp_user = AlertConfig.KIDS_SMTP_USER
+            smtp_pass = AlertConfig.KIDS_SMTP_PASSWORD
+        else:
+            smtp_user = AlertConfig.GOURMET_SMTP_USER
+            smtp_pass = AlertConfig.GOURMET_SMTP_PASSWORD
+
+        if not smtp_pass:
+            msg = f"SMTP password not configured for {brand} - email alert skipped"
             logger.warning(msg)
             return False, msg
 
@@ -280,23 +300,20 @@ class EmailAlert:
             return False, msg
 
         try:
-            # Generate email content
             html_content = EmailTemplate.render_order_summary(order, brand)
-            brand_name = EmailTemplate.get_brand_name(brand)
 
-            # Build email
             msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"🛒 New Order {brand.upper()} — {order.get('name', 'Unknown')} • €{order.get('total', 0):.2f}"
-            msg["From"] = AlertConfig.SMTP_USER
+            msg["Subject"] = f"🛒 Nuevo pedido {brand.upper()} — {order.get('name', 'Unknown')} • €{order.get('total', 0):.2f}"
+            msg["From"] = smtp_user
             msg["To"] = ", ".join(recipients)
             msg.attach(MIMEText(html_content, "html"))
 
-            # Send to each recipient
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login(AlertConfig.SMTP_USER, AlertConfig.SMTP_PASSWORD)
+            with smtplib.SMTP(AlertConfig.SMTP_HOST, AlertConfig.SMTP_PORT) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
                 for recipient in recipients:
                     try:
-                        server.sendmail(AlertConfig.SMTP_USER, recipient, msg.as_string())
+                        server.sendmail(smtp_user, recipient, msg.as_string())
                         logger.info(f"Email sent to {recipient} for order {order.get('stripe_id')}")
                     except Exception as e:
                         logger.error(f"Failed to send email to {recipient}: {e}")
