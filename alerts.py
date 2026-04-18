@@ -32,9 +32,12 @@ logger = logging.getLogger("alerts")
 class AlertConfig:
     """Load alert configuration from environment variables."""
 
-    # Email — Zoho SMTP
+    # Email — Resend HTTP API (preferred, Railway-compatible)
+    RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+
+    # Email — Zoho SMTP (fallback if Resend not configured)
     SMTP_HOST = os.getenv("SMTP_HOST", "smtp.zoho.eu")
-    SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
 
     # Gourmet brand SMTP
     GOURMET_SMTP_USER = os.getenv("GOURMET_SMTP_USER", "hello@donquijotegourmet.com")
@@ -276,12 +279,50 @@ class EmailAlert:
         return list(set(r for r in recipients if r))
 
     @staticmethod
+    def _send_via_resend(recipients, subject, html_content, from_email) -> Tuple[bool, str]:
+        """Send email via Resend HTTP API (Railway-compatible, no SMTP ports needed)."""
+        api_key = AlertConfig.RESEND_API_KEY
+        for recipient in recipients:
+            try:
+                resp = requests.post(
+                    "https://api.resend.com/emails",
+                    headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                    json={"from": from_email, "to": recipient, "subject": subject, "html": html_content},
+                    timeout=15,
+                )
+                if resp.status_code not in (200, 201):
+                    return False, f"Resend API error {resp.status_code}: {resp.text}"
+                logger.info(f"Email sent via Resend to {recipient}")
+            except Exception as e:
+                return False, f"Resend request failed: {e}"
+        return True, f"Email sent via Resend to {len(recipients)} recipient(s)"
+
+    @staticmethod
     def send(order: dict, brand: str = "gourmet") -> Tuple[bool, str]:
         """
         Send email notification to configured recipients.
+        Uses Resend HTTP API if configured, falls back to SMTP.
         Returns (success: bool, message: str)
         """
-        # Brand-specific SMTP credentials
+        recipients = EmailAlert.get_recipients(order, brand)
+        if not recipients:
+            msg = "No email recipients configured"
+            logger.warning(msg)
+            return False, msg
+
+        subject = f"🛒 Nuevo pedido {brand.upper()} — {order.get('name', 'Unknown')} • €{order.get('total', 0):.2f}"
+
+        try:
+            html_content = EmailTemplate.render_order_summary(order, brand)
+        except Exception as e:
+            return False, f"Failed to render email template: {e}"
+
+        # ── Path 1: Resend HTTP API (preferred — works on Railway) ──────────
+        if AlertConfig.RESEND_API_KEY:
+            from_email = f"Don Quijote {brand.capitalize()} <hello@donquijotegourmet.com>"
+            return EmailAlert._send_via_resend(recipients, subject, html_content, from_email)
+
+        # ── Path 2: SMTP fallback ────────────────────────────────────────────
         if brand == "kids":
             smtp_user = AlertConfig.KIDS_SMTP_USER
             smtp_pass = AlertConfig.KIDS_SMTP_PASSWORD
@@ -290,24 +331,16 @@ class EmailAlert:
             smtp_pass = AlertConfig.GOURMET_SMTP_PASSWORD
 
         if not smtp_pass:
-            msg = f"SMTP password not configured for {brand} - email alert skipped"
-            logger.warning(msg)
-            return False, msg
-
-        recipients = EmailAlert.get_recipients(order, brand)
-        if not recipients:
-            msg = "No email recipients configured"
+            msg = f"No email method configured for {brand} (set RESEND_API_KEY or SMTP password)"
             logger.warning(msg)
             return False, msg
 
         try:
-            html_content = EmailTemplate.render_order_summary(order, brand)
-
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = f"🛒 Nuevo pedido {brand.upper()} — {order.get('name', 'Unknown')} • €{order.get('total', 0):.2f}"
-            msg["From"] = smtp_user
-            msg["To"] = ", ".join(recipients)
-            msg.attach(MIMEText(html_content, "html"))
+            mime_msg = MIMEMultipart("alternative")
+            mime_msg["Subject"] = subject
+            mime_msg["From"] = smtp_user
+            mime_msg["To"] = ", ".join(recipients)
+            mime_msg.attach(MIMEText(html_content, "html"))
 
             port = AlertConfig.SMTP_PORT
             context = ssl.create_default_context()
@@ -321,7 +354,7 @@ class EmailAlert:
                 server.login(smtp_user, smtp_pass)
                 for recipient in recipients:
                     try:
-                        server.sendmail(smtp_user, recipient, msg.as_string())
+                        server.sendmail(smtp_user, recipient, mime_msg.as_string())
                         logger.info(f"Email sent to {recipient} for order {order.get('stripe_id')}")
                     except Exception as e:
                         logger.error(f"Failed to send email to {recipient}: {e}")
