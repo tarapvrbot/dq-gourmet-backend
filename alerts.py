@@ -312,9 +312,9 @@ class EmailAlert:
             port = AlertConfig.SMTP_PORT
             context = ssl.create_default_context()
             if port == 465:
-                smtp_conn = smtplib.SMTP_SSL(AlertConfig.SMTP_HOST, port, context=context)
+                smtp_conn = smtplib.SMTP_SSL(AlertConfig.SMTP_HOST, port, context=context, timeout=15)
             else:
-                smtp_conn = smtplib.SMTP(AlertConfig.SMTP_HOST, port)
+                smtp_conn = smtplib.SMTP(AlertConfig.SMTP_HOST, port, timeout=15)
                 smtp_conn.starttls(context=context)
 
             with smtp_conn as server:
