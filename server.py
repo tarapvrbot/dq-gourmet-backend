@@ -24,10 +24,13 @@ Flujo:
 import os
 import json
 import base64
+import csv
+import io
+import sqlite3
 import stripe
 import gspread
 from datetime import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
@@ -82,6 +85,77 @@ if warnings:
     for warning in warnings:
         logger.warning(f"Alert config: {warning}")
     logger.info("Alert system will operate with reduced channels")
+
+
+# ── SQLite ───────────────────────────────────────────────────────────────
+SQLITE_DB_PATH = os.getenv("SQLITE_DB_PATH", "/tmp/orders.db")
+
+
+def init_db():
+    """Crea la tabla orders si no existe."""
+    with sqlite3.connect(SQLITE_DB_PATH) as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS orders (
+                id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                fecha     TEXT,
+                nombre    TEXT,
+                email     TEXT,
+                telefono  TEXT,
+                direccion TEXT,
+                ciudad    TEXT,
+                cp        TEXT,
+                pais      TEXT,
+                productos TEXT,
+                subtotal  REAL,
+                envio     REAL,
+                total     REAL,
+                estado    TEXT,
+                stripe_id TEXT,
+                brand     TEXT
+            )
+        """)
+        conn.commit()
+
+
+def save_to_sqlite(order: dict, brand: str = "gourmet"):
+    """Guarda el pedido en SQLite. No lanza excepciones al caller."""
+    try:
+        productos_str = " | ".join(
+            f"{item['name']} x{item['qty']} (€{item['price']*item['qty']:.2f})"
+            for item in order.get("items", [])
+        )
+        with sqlite3.connect(SQLITE_DB_PATH) as conn:
+            conn.execute(
+                """INSERT INTO orders
+                   (fecha, nombre, email, telefono, direccion, ciudad, cp, pais,
+                    productos, subtotal, envio, total, estado, stripe_id, brand)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    datetime.now().strftime("%d/%m/%Y %H:%M"),
+                    order.get("name", ""),
+                    order.get("email", ""),
+                    order.get("phone", ""),
+                    order.get("address", ""),
+                    order.get("city", ""),
+                    order.get("zip", ""),
+                    order.get("country", ""),
+                    productos_str,
+                    order.get("subtotal", 0),
+                    order.get("shipping", 0),
+                    order.get("total", 0),
+                    "Pagado",
+                    order.get("stripe_id", ""),
+                    brand.upper(),
+                ),
+            )
+            conn.commit()
+        logger.info(f"Pedido {brand.upper()} guardado en SQLite: {order.get('name')}")
+    except Exception as e:
+        logger.error(f"Error SQLite ({brand}): {e}")
+
+
+# Inicializar DB al arrancar
+init_db()
 
 
 # ── Google Sheets ─────────────────────────────────────────────────────────
@@ -292,8 +366,14 @@ def webhook():
             "total": float(metadata.get("total", 0)),
         }
 
-        # Save to Google Sheets
-        save_to_sheet(order, brand=brand)
+        # Save to SQLite (primary, always)
+        save_to_sqlite(order, brand=brand)
+
+        # Save to Google Sheets (secondary, best-effort — errors are logged but ignored)
+        try:
+            save_to_sheet(order, brand=brand)
+        except Exception as sheets_err:
+            logger.warning(f"Google Sheets skipped ({brand}): {sheets_err}")
 
         # Record in admin dashboard
         AdminDashboard.record_order(order, brand=brand)
@@ -378,6 +458,37 @@ def admin_alerts_config():
             "custom_webhook_configured": bool(AlertConfig.CUSTOM_WEBHOOK_URL),
         }
     })
+
+
+# ── CSV Export ───────────────────────────────────────────────────────────
+@app.route("/admin/export.csv", methods=["GET"])
+@require_admin_key
+def admin_export_csv():
+    """Descarga todos los pedidos de SQLite como CSV."""
+    try:
+        with sqlite3.connect(SQLITE_DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute("SELECT * FROM orders ORDER BY id DESC").fetchall()
+
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow([
+            "id", "fecha", "nombre", "email", "telefono", "direccion",
+            "ciudad", "cp", "pais", "productos", "subtotal", "envio",
+            "total", "estado", "stripe_id", "brand"
+        ])
+        for row in rows:
+            writer.writerow(list(row))
+
+        csv_bytes = output.getvalue().encode("utf-8-sig")  # BOM para Excel
+        return Response(
+            csv_bytes,
+            mimetype="text/csv",
+            headers={"Content-Disposition": "attachment; filename=pedidos.csv"},
+        )
+    except Exception as e:
+        logger.error(f"Error exportando CSV: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 # ── Health & Debug Endpoints ──────────────────────────────────────────────
