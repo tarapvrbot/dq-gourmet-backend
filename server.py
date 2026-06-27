@@ -26,6 +26,7 @@ import json
 import base64
 import csv
 import io
+import hashlib
 import sqlite3
 import stripe
 import gspread
@@ -92,7 +93,7 @@ SQLITE_DB_PATH = os.getenv("SQLITE_DB_PATH", "/tmp/orders.db")
 
 
 def init_db():
-    """Crea la tabla orders si no existe."""
+    """Crea las tablas orders y visits si no existen."""
     with sqlite3.connect(SQLITE_DB_PATH) as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS orders (
@@ -114,6 +115,22 @@ def init_db():
                 brand     TEXT
             )
         """)
+        # Tabla de visitas: una fila por cada vez que alguien entra a jugar.
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS visits (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                fecha       TEXT,   -- timestamp legible (dd/mm/YYYY HH:MM)
+                dia         TEXT,   -- YYYY-MM-DD, para agrupar por día
+                brand       TEXT,
+                path        TEXT,   -- página a la que entró
+                referrer    TEXT,   -- de dónde venía
+                visitor_id  TEXT,   -- id anónimo generado en el navegador
+                ip_hash     TEXT    -- hash de la IP (privacidad: no guardamos la IP real)
+            )
+        """)
+        # Índices para que las consultas por día / visitante sean rápidas.
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_visits_dia ON visits(dia)")
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_visits_visitor ON visits(visitor_id)")
         conn.commit()
 
 
@@ -152,6 +169,85 @@ def save_to_sqlite(order: dict, brand: str = "gourmet"):
         logger.info(f"Pedido {brand.upper()} guardado en SQLite: {order.get('name')}")
     except Exception as e:
         logger.error(f"Error SQLite ({brand}): {e}")
+
+
+def save_visit(brand: str, path: str, referrer: str, visitor_id: str, ip: str):
+    """Registra una visita (alguien que entra a jugar). No lanza excepciones al caller."""
+    try:
+        now = datetime.now()
+        # Hasheamos la IP en lugar de guardarla: nos sirve para contar visitantes
+        # únicos sin almacenar datos personales.
+        ip_hash = hashlib.sha256((ip or "").encode("utf-8")).hexdigest()[:16] if ip else ""
+        with sqlite3.connect(SQLITE_DB_PATH) as conn:
+            conn.execute(
+                """INSERT INTO visits
+                   (fecha, dia, brand, path, referrer, visitor_id, ip_hash)
+                   VALUES (?,?,?,?,?,?,?)""",
+                (
+                    now.strftime("%d/%m/%Y %H:%M"),
+                    now.strftime("%Y-%m-%d"),
+                    (brand or "kids").lower(),
+                    (path or "")[:255],
+                    (referrer or "")[:255],
+                    (visitor_id or "")[:64],
+                    ip_hash,
+                ),
+            )
+            conn.commit()
+    except Exception as e:
+        logger.error(f"Error guardando visita: {e}")
+
+
+def get_visit_stats():
+    """Devuelve estadísticas de visitas para el panel."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    with sqlite3.connect(SQLITE_DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+
+        total = conn.execute("SELECT COUNT(*) AS c FROM visits").fetchone()["c"]
+        # "Visitantes únicos" = combinaciones distintas de visitor_id o, si no hay,
+        # de hash de IP.
+        unique_total = conn.execute(
+            "SELECT COUNT(DISTINCT COALESCE(NULLIF(visitor_id,''), ip_hash)) AS c FROM visits"
+        ).fetchone()["c"]
+
+        today_total = conn.execute(
+            "SELECT COUNT(*) AS c FROM visits WHERE dia = ?", (today,)
+        ).fetchone()["c"]
+        today_unique = conn.execute(
+            "SELECT COUNT(DISTINCT COALESCE(NULLIF(visitor_id,''), ip_hash)) AS c "
+            "FROM visits WHERE dia = ?", (today,)
+        ).fetchone()["c"]
+
+        # Últimos 14 días, día a día.
+        by_day = [
+            {"dia": r["dia"], "visitas": r["c"], "unicos": r["u"]}
+            for r in conn.execute(
+                """SELECT dia,
+                          COUNT(*) AS c,
+                          COUNT(DISTINCT COALESCE(NULLIF(visitor_id,''), ip_hash)) AS u
+                   FROM visits
+                   GROUP BY dia
+                   ORDER BY dia DESC
+                   LIMIT 14"""
+            ).fetchall()
+        ]
+
+        by_brand = [
+            {"brand": r["brand"], "visitas": r["c"]}
+            for r in conn.execute(
+                "SELECT brand, COUNT(*) AS c FROM visits GROUP BY brand ORDER BY c DESC"
+            ).fetchall()
+        ]
+
+    return {
+        "total_visitas": total,
+        "visitantes_unicos": unique_total,
+        "hoy_visitas": today_total,
+        "hoy_unicos": today_unique,
+        "por_dia": by_day,
+        "por_marca": by_brand,
+    }
 
 
 # Inicializar DB al arrancar
@@ -398,6 +494,31 @@ def webhook():
     return jsonify({"status": "ok"})
 
 
+# ── Visitas / Analytics ───────────────────────────────────────────────────
+@app.route("/track-visit", methods=["POST", "GET"])
+def track_visit():
+    """
+    Registra que alguien ha entrado a jugar.
+    El frontend (web de Netlify) llama a este endpoint al cargar la página.
+    Público a propósito: no requiere clave, porque lo llama el navegador del visitante.
+    """
+    data = request.get_json(silent=True) or {}
+
+    # IP real detrás del proxy (Railway/Netlify) → cabecera X-Forwarded-For.
+    forwarded = request.headers.get("X-Forwarded-For", "")
+    ip = forwarded.split(",")[0].strip() if forwarded else (request.remote_addr or "")
+
+    save_visit(
+        brand=data.get("brand", "kids"),
+        path=data.get("path", request.args.get("path", "")),
+        referrer=data.get("referrer", request.referrer or ""),
+        visitor_id=data.get("visitor_id", request.args.get("visitor_id", "")),
+        ip=ip,
+    )
+    # Respuesta mínima; CORS ya permite el origen de Netlify.
+    return jsonify({"status": "ok"})
+
+
 # ── Admin Dashboard Endpoints ────────────────────────────────────────────
 @app.route("/admin/orders", methods=["GET"])
 @require_admin_key
@@ -420,6 +541,16 @@ def admin_stats():
     return jsonify({
         "status": "ok",
         "stats": stats
+    })
+
+
+@app.route("/admin/visits", methods=["GET"])
+@require_admin_key
+def admin_visits():
+    """Estadísticas de visitas (cuánta gente entra a jugar)."""
+    return jsonify({
+        "status": "ok",
+        "visits": get_visit_stats()
     })
 
 
@@ -489,6 +620,133 @@ def admin_export_csv():
     except Exception as e:
         logger.error(f"Error exportando CSV: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+# ── Panel visual de visitas ───────────────────────────────────────────────
+PANEL_HTML = """<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel · ¿Cuánta gente entra?</title>
+<style>
+  :root { --bg:#0f1226; --card:#1b1f3b; --accent:#ffd23f; --text:#f5f6ff; --muted:#9aa0c7; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+         background:var(--bg); color:var(--text); padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--muted); margin:0 0 24px; font-size:14px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
+  .card { background:var(--card); border-radius:16px; padding:20px; }
+  .num { font-size:40px; font-weight:700; color:var(--accent); line-height:1; }
+  .label { color:var(--muted); font-size:13px; margin-top:8px; }
+  table { width:100%; border-collapse:collapse; margin-top:14px; font-size:14px; }
+  th,td { text-align:left; padding:8px 10px; border-bottom:1px solid #2a2f55; }
+  th { color:var(--muted); font-weight:600; }
+  .bar { height:8px; background:var(--accent); border-radius:4px; }
+  .section { background:var(--card); border-radius:16px; padding:20px; margin-top:16px; }
+  .section h2 { font-size:16px; margin:0 0 6px; }
+  input,button { font-size:15px; padding:10px 14px; border-radius:10px; border:1px solid #2a2f55; }
+  input { background:#11142b; color:var(--text); width:260px; }
+  button { background:var(--accent); color:#1b1f3b; font-weight:700; border:none; cursor:pointer; }
+  .login { max-width:360px; margin:60px auto; text-align:center; }
+  .err { color:#ff6b6b; font-size:14px; min-height:18px; }
+  .muted { color:var(--muted); font-size:12px; margin-top:24px; }
+</style>
+</head>
+<body>
+<div id="login" class="login" style="display:none">
+  <h1>Panel de visitas</h1>
+  <p class="sub">Introduce la clave de administrador</p>
+  <p><input id="key" type="password" placeholder="Admin API key" autocomplete="off"></p>
+  <p><button onclick="saveKey()">Entrar</button></p>
+  <p class="err" id="loginErr"></p>
+</div>
+
+<div id="dash" style="display:none">
+  <h1>¿Cuánta gente entra a jugar?</h1>
+  <p class="sub">Datos en tiempo real · <span id="updated"></span> ·
+     <a href="#" onclick="logout();return false" style="color:var(--muted)">salir</a></p>
+
+  <div class="grid">
+    <div class="card"><div class="num" id="hoyUnicos">–</div><div class="label">Personas hoy</div></div>
+    <div class="card"><div class="num" id="hoyVisitas">–</div><div class="label">Entradas hoy</div></div>
+    <div class="card"><div class="num" id="totalUnicos">–</div><div class="label">Personas (total)</div></div>
+    <div class="card"><div class="num" id="totalVisitas">–</div><div class="label">Entradas (total)</div></div>
+  </div>
+
+  <div class="section">
+    <h2>Últimos días</h2>
+    <table id="dias"><thead><tr><th>Día</th><th>Personas</th><th>Entradas</th><th></th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="section">
+    <h2>Por marca</h2>
+    <table id="marcas"><thead><tr><th>Marca</th><th>Entradas</th></tr></thead><tbody></tbody></table>
+  </div>
+
+  <p class="muted">«Personas» = visitantes únicos · «Entradas» = veces que se ha abierto el juego.</p>
+</div>
+
+<script>
+const KEY_NAME = 'dq_admin_key';
+function getKey(){ return localStorage.getItem(KEY_NAME) || ''; }
+function saveKey(){
+  const k = document.getElementById('key').value.trim();
+  if(!k){ return; }
+  localStorage.setItem(KEY_NAME, k);
+  load();
+}
+function logout(){ localStorage.removeItem(KEY_NAME); showLogin(); }
+function showLogin(){ document.getElementById('login').style.display='block';
+                     document.getElementById('dash').style.display='none'; }
+function showDash(){ document.getElementById('login').style.display='none';
+                    document.getElementById('dash').style.display='block'; }
+
+async function load(){
+  const key = getKey();
+  if(!key){ showLogin(); return; }
+  try{
+    const res = await fetch('/admin/visits', { headers: { 'Authorization': 'Bearer ' + key } });
+    if(res.status === 401){ document.getElementById('loginErr').textContent='Clave incorrecta'; showLogin(); return; }
+    const data = await res.json();
+    render(data.visits);
+    showDash();
+  }catch(e){
+    document.getElementById('loginErr').textContent = 'Error de conexión';
+    showLogin();
+  }
+}
+
+function render(v){
+  document.getElementById('hoyUnicos').textContent   = v.hoy_unicos;
+  document.getElementById('hoyVisitas').textContent  = v.hoy_visitas;
+  document.getElementById('totalUnicos').textContent = v.visitantes_unicos;
+  document.getElementById('totalVisitas').textContent= v.total_visitas;
+  document.getElementById('updated').textContent = new Date().toLocaleString('es-ES');
+
+  const maxDia = Math.max(1, ...v.por_dia.map(d => d.visitas));
+  document.querySelector('#dias tbody').innerHTML = v.por_dia.map(d =>
+    `<tr><td>${d.dia}</td><td>${d.unicos}</td><td>${d.visitas}</td>
+     <td><div class="bar" style="width:${Math.round(d.visitas/maxDia*100)}%"></div></td></tr>`
+  ).join('') || '<tr><td colspan="4">Aún no hay visitas</td></tr>';
+
+  document.querySelector('#marcas tbody').innerHTML = v.por_marca.map(m =>
+    `<tr><td>${m.brand}</td><td>${m.visitas}</td></tr>`
+  ).join('') || '<tr><td colspan="2">Sin datos</td></tr>';
+}
+
+load();
+setInterval(load, 30000); // refresca cada 30s
+</script>
+</body>
+</html>"""
+
+
+@app.route("/panel", methods=["GET"])
+def panel():
+    """Página visual para ver cuánta gente entra a jugar. La clave se pide en la propia página."""
+    return Response(PANEL_HTML, mimetype="text/html")
 
 
 # ── Health & Debug Endpoints ──────────────────────────────────────────────
