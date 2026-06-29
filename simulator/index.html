@@ -308,7 +308,7 @@ function ghostAt(t){
   let lo=0,hi=bestGhost.length-1;
   if(t<=bestGhost[0].t) return bestGhost[0];
   if(t>=bestGhost[hi].t) return bestGhost[hi];
-  while(hi-lo>1){ const m=(lo+hi)>>1; (bestGhost[m].t<t?lo:hi)=m; }
+  while(hi-lo>1){ const m=(lo+hi)>>1; if(bestGhost[m].t<t) lo=m; else hi=m; }
   const a=bestGhost[lo], b=bestGhost[hi], k=(t-a.t)/(b.t-a.t||1);
   return {x:a.x+(b.x-a.x)*k, y:a.y+(b.y-a.y)*k};
 }
