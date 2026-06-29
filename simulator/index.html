@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>E1 Trazada — Simulador</title>
+<style>
+  :root { --bg:#0a1220; --fg:#e7eefb; --accent:#33d6ff; --warn:#ff4d4d; --ok:#46e08a; }
+  * { box-sizing:border-box; -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; overflow:hidden; }
+  #stage { position:fixed; inset:0; }
+  canvas { display:block; width:100%; height:100%; touch-action:none; }
+
+  /* HUD */
+  #hud { position:fixed; top:env(safe-area-inset-top,8px); left:0; right:0;
+    display:flex; justify-content:space-between; padding:10px 14px; pointer-events:none;
+    font-variant-numeric:tabular-nums; }
+  .hud-box { background:rgba(10,18,32,.55); border:1px solid rgba(255,255,255,.08);
+    border-radius:12px; padding:8px 12px; backdrop-filter:blur(8px); }
+  .hud-box .lbl { font-size:10px; letter-spacing:.08em; text-transform:uppercase; opacity:.6; }
+  .hud-box .val { font-size:22px; font-weight:700; line-height:1.1; }
+  #speedVal .val { color:var(--accent); }
+  #delta.neg .val { color:var(--ok); }  #delta.pos .val { color:var(--warn); }
+
+  /* Bottom controls */
+  #bar { position:fixed; bottom:env(safe-area-inset-bottom,10px); left:0; right:0;
+    display:flex; gap:8px; justify-content:center; padding:0 12px; flex-wrap:wrap; }
+  button.b { pointer-events:auto; background:rgba(255,255,255,.07); color:var(--fg);
+    border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:11px 14px;
+    font-size:14px; font-weight:600; }
+  button.b:active { background:rgba(255,255,255,.18); }
+  button.b.primary { background:var(--accent); color:#04121a; border-color:var(--accent); }
+
+  /* Start overlay */
+  #start { position:fixed; inset:0; background:radial-gradient(120% 90% at 50% 30%,#0e2036,#070d18);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; padding:24px; text-align:center; z-index:30; }
+  #start h1 { margin:0; font-size:30px; letter-spacing:.02em; }
+  #start h1 small { display:block; font-size:13px; opacity:.6; font-weight:500; letter-spacing:.18em; margin-top:6px; }
+  #start p { max-width:340px; opacity:.75; font-size:14px; line-height:1.5; margin:0; }
+  #start button { font-size:17px; padding:15px 28px; }
+  .hint { font-size:12px; opacity:.5; }
+
+  /* Tuning panel */
+  #panel { position:fixed; top:0; right:0; bottom:0; width:min(320px,82vw);
+    background:rgba(8,14,26,.96); border-left:1px solid rgba(255,255,255,.1);
+    transform:translateX(100%); transition:transform .25s ease; z-index:25;
+    padding:18px 16px; overflow-y:auto; }
+  #panel.open { transform:translateX(0); }
+  #panel h2 { font-size:15px; margin:4px 0 14px; }
+  .row { margin:14px 0; }
+  .row label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
+  .row label b { color:var(--accent); font-variant-numeric:tabular-nums; }
+  .row input[type=range] { width:100%; }
+  .row .desc { font-size:11px; opacity:.5; margin-top:3px; line-height:1.4; }
+  textarea { width:100%; height:120px; background:#0a1322; color:var(--fg);
+    border:1px solid rgba(255,255,255,.15); border-radius:8px; font-family:ui-monospace,monospace;
+    font-size:11px; padding:8px; }
+  select { width:100%; background:#0a1322; color:var(--fg); border:1px solid rgba(255,255,255,.15);
+    border-radius:8px; padding:8px; font-size:13px; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv"></canvas></div>
+
+<div id="hud">
+  <div class="hud-box" id="speedVal"><div class="lbl">Velocidad</div><div class="val">0<small> km/h</small></div></div>
+  <div class="hud-box" id="lapBox"><div class="lbl">Vuelta</div><div class="val">0.00</div></div>
+  <div class="hud-box" id="best"><div class="lbl">Mejor</div><div class="val">—</div></div>
+  <div class="hud-box" id="delta"><div class="lbl">Δ vs ideal</div><div class="val">—</div></div>
+</div>
+
+<div id="bar">
+  <button class="b" id="calib">🎯 Calibrar 0</button>
+  <button class="b" id="reset">↺ Reiniciar</button>
+  <button class="b" id="modeBtn">Lap: Short</button>
+  <button class="b" id="gear">⚙︎ Ajustes</button>
+</div>
+
+<div id="panel">
+  <h2>⚙︎ Ajustes del barco</h2>
+  <div class="row">
+    <label>Agarre lateral (A_MAX) <b id="vAmax"></b></label>
+    <input type="range" id="amax" min="3" max="20" step="0.5">
+    <div class="desc">Cuánto aguanta antes de escurrir. Bajo = premia mucho la trazada suave.</div>
+  </div>
+  <div class="row">
+    <label>Castigo al escurrir (SCRUB_K) <b id="vScrub"></b></label>
+    <input type="range" id="scrub" min="0.2" max="4" step="0.1">
+    <div class="desc">Qué tan duro frena cuando te pasas del agarre.</div>
+  </div>
+  <div class="row">
+    <label>Empuje motor (THRUST) <b id="vThr"></b></label>
+    <input type="range" id="thrust" min="2" max="14" step="0.5">
+    <div class="desc">Cuánto recuperas en recta tras frenar.</div>
+  </div>
+  <div class="row">
+    <label>Resistencia agua (DRAG) <b id="vDrag"></b></label>
+    <input type="range" id="drag" min="0.004" max="0.03" step="0.001">
+    <div class="desc">Fija tu velocidad punta natural.</div>
+  </div>
+  <div class="row">
+    <label>Sensibilidad volante (K_STEER) <b id="vSteer"></b></label>
+    <input type="range" id="steer" min="0.5" max="4" step="0.1">
+    <div class="desc">Cuánto gira el barco por grado de inclinación.</div>
+  </div>
+
+  <h2 style="margin-top:24px">🛟 Circuito</h2>
+  <div class="row">
+    <label>Formato</label>
+    <select id="fmt">
+      <option value="meters">Metros {x,y}</option>
+      <option value="latlon">GPS {lat,lon}</option>
+    </select>
+    <div class="desc">Pega las boyas en orden. La 1ª es salida/meta.</div>
+  </div>
+  <textarea id="course"></textarea>
+  <button class="b primary" id="loadCourse" style="width:100%;margin-top:8px">Cargar circuito</button>
+</div>
+
+<div id="start">
+  <h1>E1 · Trazada<small>SIMULADOR DE LÍNEA</small></h1>
+  <p>El móvil es tu volante. Inclínalo para girar. El barco avanza solo: si giras demasiado fuerte para tu velocidad, <b>escurre y pierde tiempo</b>. La trazada suave es la rápida.</p>
+  <button class="b primary" id="go">▶︎ Empezar</button>
+  <div class="hint">iPhone: pulsa Empezar y permite el acceso a movimiento.<br>Escritorio: usa ← → para probar.</div>
+</div>
+
+<script>
+"use strict";
+// ─────────────────────────────────────────────────────────────────────────
+//  E1 Trazada — prototipo de simulador de línea de carrera
+//  Modelo: inclinación → giro (ω) → aceleración lateral a_lat = v·ω
+//  Si a_lat supera A_MAX, el barco "escurre" y pierde velocidad.
+// ─────────────────────────────────────────────────────────────────────────
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W=0, H=0, DPR=1;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W*DPR; cv.height = H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  fitCamera();
+}
+window.addEventListener('resize', resize);
+
+// ── Tunables (los 5 mandos) ───────────────────────────────────────────────
+const T = { AMAX:8, SCRUB_K:1.5, THRUST:6.5, DRAG:0.011, K_STEER:1.8 };
+const VMIN = 3;                 // m/s, no se para del todo en curva
+function bindSlider(id, key, valId, fmt){
+  const el=document.getElementById(id), v=document.getElementById(valId);
+  el.value=T[key]; v.textContent=fmt(T[key]);
+  el.addEventListener('input',()=>{ T[key]=parseFloat(el.value); v.textContent=fmt(T[key]); });
+}
+bindSlider('amax','AMAX','vAmax',x=>x.toFixed(1));
+bindSlider('scrub','SCRUB_K','vScrub',x=>x.toFixed(1));
+bindSlider('thrust','THRUST','vThr',x=>x.toFixed(1));
+bindSlider('drag','DRAG','vDrag',x=>x.toFixed(3));
+bindSlider('steer','K_STEER','vSteer',x=>x.toFixed(1));
+
+// ── Circuito por defecto (metros). 1ª boya = salida/meta ──────────────────
+const DEFAULT_COURSE = [
+  {x:0,   y:0},    {x:130, y:-25},  {x:175, y:-110},
+  {x:80,  y:-185}, {x:-55, y:-150}, {x:-110,y:-45}
+];
+let buoys = DEFAULT_COURSE.slice();
+let orderShort=[0,1,2,3,4,5];
+let orderLong =[0,1,2,3,4,5,4,3];   // ejemplo: long lap repite sector interior
+let useLong=false;
+const R_BUOY = 16;                  // radio de paso (m)
+document.getElementById('course').value = JSON.stringify(DEFAULT_COURSE);
+
+function latlonToMeters(list){
+  const R=6371000, d2r=Math.PI/180;
+  const lat0=list[0].lat, lon0=list[0].lon;
+  return list.map(p=>({
+    x:(p.lon-lon0)*Math.cos(lat0*d2r)*R*d2r,
+    y:-(p.lat-lat0)*R*d2r            // y hacia abajo en canvas → norte arriba
+  }));
+}
+document.getElementById('loadCourse').addEventListener('click',()=>{
+  try{
+    let raw=JSON.parse(document.getElementById('course').value);
+    if(!Array.isArray(raw)||raw.length<3) throw new Error('mín. 3 boyas');
+    if(document.getElementById('fmt').value==='latlon') raw=latlonToMeters(raw);
+    buoys=raw.map(p=>({x:+p.x,y:+p.y}));
+    const n=buoys.length;
+    orderShort=[...Array(n).keys()];
+    orderLong=[...Array(n).keys()];      // sin sector extra al cargar custom
+    fitCamera(); resetRun();
+    panel.classList.remove('open');
+  }catch(e){ alert('Circuito inválido: '+e.message); }
+});
+
+// ── Cámara: encaja todo el circuito en pantalla (norte arriba, estático) ──
+let cam={s:1,ox:0,oy:0};
+function fitCamera(){
+  if(!buoys.length) return;
+  let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9;
+  for(const b of buoys){ minX=Math.min(minX,b.x); maxX=Math.max(maxX,b.x);
+    minY=Math.min(minY,b.y); maxY=Math.max(maxY,b.y); }
+  const pad=60;
+  const cw=maxX-minX||1, ch=maxY-minY||1;
+  cam.s=Math.min((W-2*pad)/cw,(H-2*pad)/ch);
+  cam.ox=(W-cam.s*(minX+maxX))/2;
+  cam.oy=(H-cam.s*(minY+maxY))/2;
+}
+const wx=x=>x*cam.s+cam.ox, wy=y=>y*cam.s+cam.oy;
+
+// ── Estado del barco ──────────────────────────────────────────────────────
+const boat={x:0,y:0,heading:0,v:VMIN};
+let scrubNow=0;                  // cuánto está escurriendo ahora (para feedback)
+let trail=[];                    // estela
+let running=false;
+
+// ── Lógica de vuelta + fantasma ideal ────────────────────────────────────
+let order=orderShort, ptr=0, lapStart=0, lapTime=0, bestTime=null;
+let recGhost=[], bestGhost=null, ghostStart=0;
+function resetRun(){
+  order = useLong?orderLong:orderShort;
+  const s=buoys[order[0]];
+  boat.x=s.x; boat.y=s.y; boat.v=VMIN; scrubNow=0;
+  // apunta hacia la 2ª boya
+  const n=buoys[order[1%order.length]];
+  boat.heading=Math.atan2(n.y-s.y,n.x-s.x);
+  ptr=0; lapStart=performance.now(); lapTime=0;
+  trail=[]; recGhost=[]; ghostStart=performance.now();
+}
+function resetAll(){ bestTime=null; bestGhost=null;
+  document.getElementById('best').querySelector('.val').textContent='—'; resetRun(); }
+
+function lapLogic(now){
+  const target=buoys[order[ptr]];
+  const dx=boat.x-target.x, dy=boat.y-target.y;
+  if(dx*dx+dy*dy < R_BUOY*R_BUOY){
+    ptr++;
+    if(ptr>=order.length){             // ¡vuelta completa!
+      lapTime=(now-lapStart)/1000;
+      if(bestTime===null||lapTime<bestTime){
+        bestTime=lapTime; bestGhost=recGhost.slice();
+        document.getElementById('best').querySelector('.val').textContent=lapTime.toFixed(2);
+      }
+      ptr=0; lapStart=now; recGhost=[]; ghostStart=now;
+    }
+  }
+}
+
+// ── Entrada: inclinómetro (gamma) + teclado fallback ──────────────────────
+let rawRoll=0, rollZero=0, keyRoll=0;
+function onOrient(e){ if(e.gamma!=null) rawRoll=e.gamma*Math.PI/180; }
+window.addEventListener('keydown',e=>{ if(e.key==='ArrowLeft')keyRoll=-0.6; if(e.key==='ArrowRight')keyRoll=0.6; });
+window.addEventListener('keyup',e=>{ if(e.key==='ArrowLeft'||e.key==='ArrowRight')keyRoll=0; });
+document.getElementById('calib').addEventListener('click',()=>{ rollZero=rawRoll; });
+function steerInput(){ return keyRoll!==0 ? keyRoll : (rawRoll-rollZero); }
+
+// ── Bucle físico (timestep fijo) ──────────────────────────────────────────
+let last=0, acc=0; const DT=1/120;
+function step(){
+  const roll=steerInput();
+  const omega=T.K_STEER*roll;                 // velocidad de giro (rad/s)
+  const aLat=boat.v*omega;                     // aceleración lateral
+  const scrub=Math.max(0,Math.abs(aLat)-T.AMAX);
+  scrubNow=scrub;
+  // velocidad longitudinal: motor − resistencia − castigo por sobre-girar
+  boat.v += (T.THRUST - T.DRAG*boat.v*boat.v - T.SCRUB_K*scrub)*DT;
+  if(boat.v<VMIN) boat.v=VMIN;
+  boat.heading += omega*DT;
+  boat.x += boat.v*Math.cos(boat.heading)*DT;
+  boat.y += boat.v*Math.sin(boat.heading)*DT;
+}
+function frame(now){
+  requestAnimationFrame(frame);
+  if(!running){ draw(); return; }
+  if(!last) last=now;
+  acc += Math.min((now-last)/1000,0.1); last=now;
+  while(acc>=DT){ step(); acc-=DT; }
+  lapLogic(now);
+  lapTime=(now-lapStart)/1000;
+  // estela + grabación fantasma
+  trail.push({x:boat.x,y:boat.y,scrub:scrubNow}); if(trail.length>240) trail.shift();
+  recGhost.push({t:(now-ghostStart)/1000,x:boat.x,y:boat.y});
+  draw(now);
+  updateHUD();
+}
+requestAnimationFrame(frame);
+
+// ── HUD ───────────────────────────────────────────────────────────────────
+function updateHUD(){
+  document.getElementById('speedVal').querySelector('.val').innerHTML =
+    Math.round(boat.v*3.6)+'<small> km/h</small>';
+  document.getElementById('lapBox').querySelector('.val').textContent = lapTime.toFixed(2);
+  // Δ vs fantasma ideal (a la misma marca de tiempo)
+  const dEl=document.getElementById('delta');
+  if(bestGhost){
+    const g=ghostAt(lapTime);
+    const dx=boat.x-g.x, dy=boat.y-g.y;
+    const ahead=Math.hypot(dx,dy);             // distancia al fantasma
+    // si estás por delante en recorrido respecto al fantasma → verde
+    const sign=progress(boat)-progress(g)>=0 ? -1:1;
+    const val=(sign<0?'−':'+')+ (ahead/Math.max(boat.v,1)).toFixed(2)+'s';
+    dEl.querySelector('.val').textContent=val;
+    dEl.className=''; dEl.classList.add(sign<0?'neg':'pos'); dEl.id='delta';
+  } else { document.getElementById('delta').querySelector('.val').textContent='—'; }
+}
+function ghostAt(t){
+  if(!bestGhost||!bestGhost.length) return boat;
+  let lo=0,hi=bestGhost.length-1;
+  if(t<=bestGhost[0].t) return bestGhost[0];
+  if(t>=bestGhost[hi].t) return bestGhost[hi];
+  while(hi-lo>1){ const m=(lo+hi)>>1; (bestGhost[m].t<t?lo:hi)=m; }
+  const a=bestGhost[lo], b=bestGhost[hi], k=(t-a.t)/(b.t-a.t||1);
+  return {x:a.x+(b.x-a.x)*k, y:a.y+(b.y-a.y)*k};
+}
+function progress(p){ // índice aproximado de avance sobre el orden de boyas
+  let best=1e18, idx=0;
+  for(let i=0;i<order.length;i++){ const b=buoys[order[i]];
+    const d=(p.x-b.x)**2+(p.y-b.y)**2; if(d<best){best=d;idx=i;} }
+  return idx;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function draw(now){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#0a1220'; ctx.fillRect(0,0,W,H);
+
+  // líneas guía entre boyas (el "recorrido" esperado)
+  ctx.strokeStyle='rgba(255,255,255,.10)'; ctx.lineWidth=2; ctx.beginPath();
+  for(let i=0;i<order.length;i++){ const b=buoys[order[i]];
+    i?ctx.lineTo(wx(b.x),wy(b.y)):ctx.moveTo(wx(b.x),wy(b.y)); }
+  const f=buoys[order[0]]; ctx.lineTo(wx(f.x),wy(f.y)); ctx.stroke();
+
+  // fantasma ideal
+  if(bestGhost&&bestGhost.length){
+    ctx.strokeStyle='rgba(70,224,138,.55)'; ctx.lineWidth=2; ctx.setLineDash([6,6]); ctx.beginPath();
+    bestGhost.forEach((g,i)=> i?ctx.lineTo(wx(g.x),wy(g.y)):ctx.moveTo(wx(g.x),wy(g.y)));
+    ctx.stroke(); ctx.setLineDash([]);
+    if(running){ const g=ghostAt(lapTime);
+      ctx.fillStyle='rgba(70,224,138,.9)'; ctx.beginPath();
+      ctx.arc(wx(g.x),wy(g.y),5,0,7); ctx.fill(); }
+  }
+
+  // estela (roja cuando escurre)
+  for(let i=1;i<trail.length;i++){ const a=trail[i-1],b=trail[i];
+    const sc=Math.min(b.scrub/8,1);
+    ctx.strokeStyle=`rgba(${Math.round(80+175*sc)},${Math.round(214-180*sc)},${Math.round(255-200*sc)},${0.15+0.5*(i/trail.length)})`;
+    ctx.lineWidth=2+3*sc; ctx.beginPath();
+    ctx.moveTo(wx(a.x),wy(a.y)); ctx.lineTo(wx(b.x),wy(b.y)); ctx.stroke(); }
+
+  // boyas
+  buoys.forEach((b,i)=>{
+    const isNext = running && order[ptr]===i;
+    const isStart = order[0]===i;
+    ctx.beginPath(); ctx.arc(wx(b.x),wy(b.y),isNext?11:8,0,7);
+    ctx.fillStyle = isNext?'#ffcf3f' : isStart?'#33d6ff' : 'rgba(255,255,255,.45)';
+    ctx.fill();
+    if(isNext){ ctx.strokeStyle='rgba(255,207,63,.4)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(wx(b.x),wy(b.y),R_BUOY*cam.s,0,7); ctx.stroke(); }
+  });
+
+  // barco
+  const bx=wx(boat.x), by=wy(boat.y), hd=boat.heading;
+  ctx.save(); ctx.translate(bx,by); ctx.rotate(hd);
+  ctx.fillStyle = scrubNow>0.5 ? '#ff5d5d' : '#eef6ff';
+  ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(-9,-7); ctx.lineTo(-5,0); ctx.lineTo(-9,7);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+
+// ── UI wiring ─────────────────────────────────────────────────────────────
+const panel=document.getElementById('panel');
+document.getElementById('gear').addEventListener('click',()=>panel.classList.toggle('open'));
+document.getElementById('reset').addEventListener('click',resetAll);
+document.getElementById('modeBtn').addEventListener('click',e=>{
+  useLong=!useLong; e.target.textContent='Lap: '+(useLong?'Long':'Short'); resetRun();
+});
+
+async function begin(){
+  // iOS 13+ requiere permiso explícito tras gesto
+  try{
+    if(typeof DeviceOrientationEvent!=='undefined' &&
+       typeof DeviceOrientationEvent.requestPermission==='function'){
+      const r=await DeviceOrientationEvent.requestPermission();
+      if(r==='granted') window.addEventListener('deviceorientation',onOrient);
+    } else {
+      window.addEventListener('deviceorientation',onOrient);
+    }
+  }catch(_){ window.addEventListener('deviceorientation',onOrient); }
+  document.getElementById('start').style.display='none';
+  resize(); resetAll(); running=true; last=0;
+}
+document.getElementById('go').addEventListener('click',begin);
+
+resize();
+</script>
+</body>
+</html>
