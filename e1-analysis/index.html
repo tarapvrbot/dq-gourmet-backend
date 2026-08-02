@@ -1,416 +1,184 @@
-<title>E1 Pilot Dossier — Westbrook Performance Analysis</title>
+<title>E1 Scouting — Rival Pilot Analysis</title>
 <style>
   /* ============================================================
-     E1 PILOT DOSSIER
-     Palette: marine ground + buoy-orange accent.
+     E1 SCOUTING  ·  built from a Team Drogba seat
+     Marine ground + buoy-orange accent.
      Chart series use the validated categorical set
      (validated vs surfaces #FAFBFB light / #122730 dark).
      ============================================================ */
   :root {
     color-scheme: light;
-
-    /* grounds & surfaces — neutrals biased toward petrol, not pure grey */
-    --plane:        #E8EEEE;
-    --surface:      #FAFBFB;
-    --surface-2:    #FFFFFF;
-    --surface-sunk: #DFE7E8;
-
-    /* ink */
-    --ink:          #0A1A20;
-    --ink-2:        #46606A;
-    --ink-muted:    #71888F;
-
-    /* structure */
-    --rule:         rgba(10, 26, 32, 0.13);
-    --rule-soft:    rgba(10, 26, 32, 0.07);
-    --ring:         rgba(10, 26, 32, 0.10);
-
-    /* accent — the course buoy */
-    --accent:       #D2551C;
-    --accent-ink:   #8C3510;
-    --accent-wash:  rgba(210, 85, 28, 0.10);
-
-    /* status */
-    --good:         #0B8A3C;
-    --warn:         #B57500;
-    --crit:         #C13A3A;
-    --good-wash:    rgba(11, 138, 60, 0.11);
-    --warn-wash:    rgba(181, 117, 0, 0.12);
-    --crit-wash:    rgba(193, 58, 58, 0.11);
-
-    /* chart series (validated light steps) */
-    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
-    --s4: #eda100; --s5: #e87ba4; --s6: #008300;
-
-    --grid:         #DDE5E6;
-
+    --plane: #E8EEEE; --surface: #FAFBFB; --surface-2: #FFFFFF; --surface-sunk: #DFE7E8;
+    --ink: #0A1A20; --ink-2: #46606A; --ink-muted: #71888F;
+    --rule: rgba(10,26,32,.13); --rule-soft: rgba(10,26,32,.07);
+    --accent: #D2551C; --accent-ink: #8C3510; --accent-wash: rgba(210,85,28,.10);
+    --good: #0B8A3C; --warn: #B57500; --crit: #C13A3A;
+    --good-wash: rgba(11,138,60,.11); --warn-wash: rgba(181,117,0,.12); --crit-wash: rgba(193,58,58,.11);
+    --purple: #6E3AA7; --purple-wash: rgba(110,58,167,.11);
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300;
     --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-
-    --rail: 232px;
+    --rail: 236px;
   }
-
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme: dark;
-      --plane:        #08141A;
-      --surface:      #122730;
-      --surface-2:    #17313C;
-      --surface-sunk: #0D1F27;
-
-      --ink:          #E9F1F2;
-      --ink-2:        #A2B8C0;
-      --ink-muted:    #7A939C;
-
-      --rule:         rgba(233, 241, 242, 0.15);
-      --rule-soft:    rgba(233, 241, 242, 0.08);
-      --ring:         rgba(233, 241, 242, 0.12);
-
-      --accent:       #F07A42;
-      --accent-ink:   #F5A57C;
-      --accent-wash:  rgba(240, 122, 66, 0.14);
-
-      --good:         #3FBB6A;
-      --warn:         #E0A32B;
-      --crit:         #E86B6B;
-      --good-wash:    rgba(63, 187, 106, 0.14);
-      --warn-wash:    rgba(224, 163, 43, 0.14);
-      --crit-wash:    rgba(232, 107, 107, 0.14);
-
-      --s1: #3987e5; --s2: #d95926; --s3: #199e70;
-      --s4: #c98500; --s5: #d55181; --s6: #008300;
-
-      --grid:         #21414E;
+      --plane:#08141A; --surface:#122730; --surface-2:#17313C; --surface-sunk:#0D1F27;
+      --ink:#E9F1F2; --ink-2:#A2B8C0; --ink-muted:#7A939C;
+      --rule:rgba(233,241,242,.15); --rule-soft:rgba(233,241,242,.08);
+      --accent:#F07A42; --accent-ink:#F5A57C; --accent-wash:rgba(240,122,66,.14);
+      --good:#3FBB6A; --warn:#E0A32B; --crit:#E86B6B;
+      --good-wash:rgba(63,187,106,.14); --warn-wash:rgba(224,163,43,.14); --crit-wash:rgba(232,107,107,.14);
+      --purple:#A98BE8; --purple-wash:rgba(169,139,232,.15);
+      --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
     }
   }
-
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --plane:        #08141A;
-    --surface:      #122730;
-    --surface-2:    #17313C;
-    --surface-sunk: #0D1F27;
-
-    --ink:          #E9F1F2;
-    --ink-2:        #A2B8C0;
-    --ink-muted:    #7A939C;
-
-    --rule:         rgba(233, 241, 242, 0.15);
-    --rule-soft:    rgba(233, 241, 242, 0.08);
-    --ring:         rgba(233, 241, 242, 0.12);
-
-    --accent:       #F07A42;
-    --accent-ink:   #F5A57C;
-    --accent-wash:  rgba(240, 122, 66, 0.14);
-
-    --good:         #3FBB6A;
-    --warn:         #E0A32B;
-    --crit:         #E86B6B;
-    --good-wash:    rgba(63, 187, 106, 0.14);
-    --warn-wash:    rgba(224, 163, 43, 0.14);
-    --crit-wash:    rgba(232, 107, 107, 0.14);
-
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
-    --s4: #c98500; --s5: #d55181; --s6: #008300;
-
-    --grid:         #21414E;
+    --plane:#08141A; --surface:#122730; --surface-2:#17313C; --surface-sunk:#0D1F27;
+    --ink:#E9F1F2; --ink-2:#A2B8C0; --ink-muted:#7A939C;
+    --rule:rgba(233,241,242,.15); --rule-soft:rgba(233,241,242,.08);
+    --accent:#F07A42; --accent-ink:#F5A57C; --accent-wash:rgba(240,122,66,.14);
+    --good:#3FBB6A; --warn:#E0A32B; --crit:#E86B6B;
+    --good-wash:rgba(63,187,106,.14); --warn-wash:rgba(224,163,43,.14); --crit-wash:rgba(232,107,107,.14);
+    --purple:#A98BE8; --purple-wash:rgba(169,139,232,.15);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
   }
 
   * { box-sizing: border-box; }
+  body { margin:0; background:var(--plane); color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased; }
 
-  body {
-    margin: 0;
-    background: var(--plane);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 15px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
+  .eyebrow { font-family:var(--mono); font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-muted); font-weight:600; }
+  h1,h2,h3,h4 { text-wrap:balance; margin:0; line-height:1.15; }
+  h2 { font-size:25px; letter-spacing:-.02em; font-weight:680; }
+  h3 { font-size:16.5px; letter-spacing:-.01em; font-weight:660; }
+  h4 { font-size:13.5px; font-weight:660; }
+  p { margin:0; }
+  a { color:var(--accent-ink); }
 
-  /* ---------- shared type ---------- */
-  .eyebrow {
-    font-family: var(--mono);
-    font-size: 10.5px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    font-weight: 600;
-  }
-  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .masthead { background:var(--surface); border-bottom:1px solid var(--rule); padding:18px 26px; display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; position:relative; }
+  .masthead::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:linear-gradient(90deg,transparent,var(--accent) 22%,var(--accent) 62%,transparent); opacity:.55; }
+  .masthead .mark { font-family:var(--mono); font-weight:700; font-size:12px; letter-spacing:.2em; color:var(--accent-ink); border:1px solid var(--accent); padding:4px 9px; border-radius:2px; }
+  .masthead h1 { font-size:18px; font-weight:650; letter-spacing:-.015em; }
+  .masthead .sub { color:var(--ink-muted); font-size:12.5px; margin-left:auto; font-family:var(--mono); }
 
-  h1, h2, h3, h4 { text-wrap: balance; margin: 0; line-height: 1.15; }
-  h2 { font-size: 25px; letter-spacing: -0.02em; font-weight: 680; }
-  h3 { font-size: 16.5px; letter-spacing: -0.01em; font-weight: 660; }
-  h4 { font-size: 13.5px; font-weight: 660; }
-  p  { margin: 0; }
+  .shell { display:flex; align-items:flex-start; }
+  nav.rail { width:var(--rail); flex:0 0 var(--rail); position:sticky; top:0; padding:26px 0 40px; border-right:1px solid var(--rule); background:var(--surface); min-height:100vh; }
+  nav.rail .grp { padding:0 14px; margin-bottom:22px; }
+  nav.rail .grp > .eyebrow { padding:0 10px 8px; display:block; }
+  nav.rail button { display:block; width:100%; text-align:left; background:none; border:0; border-radius:3px; padding:8px 10px; font:inherit; font-size:14px; color:var(--ink-2); cursor:pointer; position:relative; }
+  nav.rail button:hover { background:var(--surface-sunk); color:var(--ink); }
+  nav.rail button[aria-current="true"] { color:var(--ink); font-weight:620; background:var(--accent-wash); }
+  nav.rail button[aria-current="true"]::before { content:""; position:absolute; left:-14px; top:6px; bottom:6px; width:2px; background:var(--accent); }
+  nav.rail button .tag { float:right; font-family:var(--mono); font-size:10.5px; color:var(--ink-muted); font-weight:500; }
 
-  a { color: var(--accent-ink); }
+  main { flex:1 1 auto; min-width:0; padding:34px 40px 90px; max-width:1120px; }
+  .view > header { margin-bottom:26px; }
+  .view > header h2 { margin:6px 0 8px; }
+  .view > header .lede { color:var(--ink-2); max-width:70ch; font-size:15.5px; }
 
-  /* ---------- masthead ---------- */
-  .masthead {
-    background: var(--surface);
-    border-bottom: 1px solid var(--rule);
-    padding: 18px 26px;
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-    flex-wrap: wrap;
-    position: relative;
-  }
-  /* the waterline: content flies above it */
-  .masthead::after {
-    content: "";
-    position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent) 22%, var(--accent) 62%, transparent);
-    opacity: 0.55;
-  }
-  .masthead .mark {
-    font-family: var(--mono);
-    font-weight: 700;
-    font-size: 12px;
-    letter-spacing: 0.2em;
-    color: var(--accent-ink);
-    border: 1px solid var(--accent);
-    padding: 4px 9px;
-    border-radius: 2px;
-  }
-  .masthead h1 { font-size: 18px; font-weight: 650; letter-spacing: -0.015em; }
-  .masthead .sub { color: var(--ink-muted); font-size: 12.5px; margin-left: auto; font-family: var(--mono); }
+  .card { background:var(--surface); border:1px solid var(--rule-soft); border-radius:4px; padding:20px 22px; }
+  .stack { display:flex; flex-direction:column; gap:18px; }
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; }
+  .grid3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(214px,1fr)); gap:14px; }
 
-  /* ---------- shell ---------- */
-  .shell { display: flex; align-items: flex-start; gap: 0; }
+  .tile { background:var(--surface); border:1px solid var(--rule-soft); border-radius:4px; padding:15px 17px; }
+  .tile .k { display:block; margin-bottom:7px; }
+  .tile .v { font-family:var(--mono); font-size:26px; font-weight:600; letter-spacing:-.02em; display:block; line-height:1.1; }
+  .tile .n { color:var(--ink-2); font-size:12.5px; margin-top:6px; display:block; line-height:1.45; }
 
-  nav.rail {
-    width: var(--rail);
-    flex: 0 0 var(--rail);
-    position: sticky;
-    top: 0;
-    padding: 26px 0 40px;
-    border-right: 1px solid var(--rule);
-    background: var(--surface);
-    min-height: 100vh;
-  }
-  nav.rail .grp { padding: 0 14px; margin-bottom: 22px; }
-  nav.rail .grp > .eyebrow { padding: 0 10px 8px; display: block; }
-  nav.rail button {
-    display: block; width: 100%; text-align: left;
-    background: none; border: 0; border-radius: 3px;
-    padding: 8px 10px;
-    font: inherit; font-size: 14px;
-    color: var(--ink-2);
-    cursor: pointer;
-    position: relative;
-  }
-  nav.rail button:hover { background: var(--surface-sunk); color: var(--ink); }
-  nav.rail button[aria-current="true"] {
-    color: var(--ink); font-weight: 620;
-    background: var(--accent-wash);
-  }
-  nav.rail button[aria-current="true"]::before {
-    content: ""; position: absolute; left: -14px; top: 6px; bottom: 6px;
-    width: 2px; background: var(--accent);
-  }
-  nav.rail button .tag {
-    float: right; font-family: var(--mono); font-size: 10.5px;
-    color: var(--ink-muted); font-weight: 500; letter-spacing: 0.04em;
-  }
+  .rate { display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10.5px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border-radius:2px; white-space:nowrap; }
+  .rate::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; flex:none; }
+  .rate.strength { color:var(--good); background:var(--good-wash); }
+  .rate.risk { color:var(--warn); background:var(--warn-wash); }
+  .rate.weakness { color:var(--crit); background:var(--crit-wash); }
+  .rate.neutral { color:var(--ink-muted); background:var(--surface-sunk); }
+  .rate.purple { color:var(--purple); background:var(--purple-wash); }
 
-  main { flex: 1 1 auto; min-width: 0; padding: 34px 40px 90px; max-width: 1080px; }
+  .tw { overflow-x:auto; border:1px solid var(--rule-soft); border-radius:4px; background:var(--surface); }
+  table { border-collapse:collapse; width:100%; font-size:13.5px; min-width:440px; }
+  th,td { text-align:left; padding:9px 14px; border-bottom:1px solid var(--rule-soft); vertical-align:top; }
+  thead th { font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-muted); font-weight:600; background:var(--surface-sunk); border-bottom:1px solid var(--rule); position:sticky; top:0; }
+  tbody tr:last-child td { border-bottom:0; }
+  td.n, th.n { font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tr.me { background:var(--accent-wash); }
 
-  section[hidden] { display: none; }
-  .view > header { margin-bottom: 26px; }
-  .view > header h2 { margin: 6px 0 8px; }
-  .view > header .lede { color: var(--ink-2); max-width: 68ch; font-size: 15.5px; }
+  .bars { display:flex; flex-direction:column; gap:9px; }
+  .bar-row { display:grid; grid-template-columns:132px 1fr; align-items:center; gap:12px; }
+  .bar-row .lbl { font-family:var(--mono); font-size:12px; color:var(--ink-2); text-align:right; }
+  .bar-track { position:relative; height:24px; background:var(--surface-sunk); border-radius:2px; overflow:hidden; }
+  .bar-fill { position:absolute; left:0; top:0; bottom:0; border-radius:0 4px 4px 0; display:flex; align-items:center; justify-content:flex-end; padding-right:9px; }
+  .bar-fill .val { font-family:var(--mono); font-size:12px; font-weight:650; color:#fff; }
 
-  /* ---------- cards ---------- */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--rule-soft);
-    border-radius: 4px;
-    padding: 20px 22px;
-  }
-  .stack { display: flex; flex-direction: column; gap: 18px; }
-  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
-  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(224px, 1fr)); gap: 14px; }
+  .quote { border-left:2px solid var(--rule); padding:2px 0 2px 13px; color:var(--ink-2); font-size:13.5px; line-height:1.55; }
+  .quote cite { display:block; font-style:normal; font-family:var(--mono); font-size:10.5px; letter-spacing:.07em; color:var(--ink-muted); margin-top:6px; text-transform:uppercase; }
+  .trait { border-top:1px solid var(--rule-soft); padding:14px 0; }
+  .trait:first-of-type { border-top:0; }
+  .trait .hd { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:7px; }
+  .trait .hd h4 { flex:1 1 auto; }
 
-  /* ---------- stat tiles ---------- */
-  .tile { background: var(--surface); border: 1px solid var(--rule-soft); border-radius: 4px; padding: 15px 17px; }
-  .tile .k { display: block; margin-bottom: 7px; }
-  .tile .v { font-family: var(--mono); font-size: 27px; font-weight: 600; letter-spacing: -0.02em; display: block; line-height: 1.1; }
-  .tile .n { color: var(--ink-2); font-size: 12.5px; margin-top: 6px; display: block; line-height: 1.45; }
+  .callout { border:1px solid var(--accent); border-left-width:2px; background:var(--accent-wash); border-radius:3px; padding:15px 18px; }
+  .callout .eyebrow { color:var(--accent-ink); }
+  .callout h3 { margin:6px 0 7px; }
+  .callout p { color:var(--ink-2); font-size:14px; }
+  .note { color:var(--ink-muted); font-size:12.5px; line-height:1.55; }
 
-  /* ---------- bar chart ---------- */
-  .chart { background: var(--surface); border: 1px solid var(--rule-soft); border-radius: 4px; padding: 20px 22px; }
-  .chart .ttl { font-size: 15px; font-weight: 640; margin-bottom: 3px; }
-  .chart .cap { color: var(--ink-muted); font-size: 12.5px; margin-bottom: 18px; }
-  .bars { display: flex; flex-direction: column; gap: 9px; }
-  .bar-row { display: grid; grid-template-columns: 124px 1fr; align-items: center; gap: 12px; }
-  .bar-row .lbl { font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-align: right; letter-spacing: 0.02em; }
-  .bar-track { position: relative; height: 26px; background: var(--surface-sunk); border-radius: 2px; overflow: hidden; }
-  .bar-fill {
-    position: absolute; left: 0; top: 0; bottom: 0;
-    border-radius: 0 4px 4px 0;
-    display: flex; align-items: center; justify-content: flex-end;
-    padding-right: 9px;
-    transition: width .55s cubic-bezier(.2,.7,.3,1);
-  }
-  .bar-fill .val { font-family: var(--mono); font-size: 12px; font-weight: 650; color: #fff; }
-  .bar-row.dim .bar-fill { opacity: .48; }
-  .bar-row .out { font-family: var(--mono); font-size: 12px; font-weight: 650; color: var(--ink); position: absolute; }
+  .empty { border:1px dashed var(--rule); border-radius:4px; padding:26px 24px; background:var(--surface); text-align:left; }
+  .empty h3 { margin-bottom:8px; }
+  .empty p { color:var(--ink-2); font-size:14px; max-width:62ch; }
 
-  /* ---------- rating pills ---------- */
-  .rate {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-family: var(--mono); font-size: 10.5px; font-weight: 650;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    padding: 3px 8px; border-radius: 2px; white-space: nowrap;
-  }
-  .rate::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
-  .rate.strength { color: var(--good); background: var(--good-wash); }
-  .rate.risk     { color: var(--warn); background: var(--warn-wash); }
-  .rate.weakness { color: var(--crit); background: var(--crit-wash); }
-  .rate.neutral  { color: var(--ink-muted); background: var(--surface-sunk); }
+  button.act { font:inherit; font-family:var(--mono); font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; background:var(--accent); color:#fff; border:0; border-radius:3px; padding:9px 15px; cursor:pointer; }
+  button.act:hover { filter:brightness(1.08); }
+  button.ghost { font:inherit; font-family:var(--mono); font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; background:none; color:var(--ink-2); border:1px solid var(--rule); border-radius:3px; padding:9px 15px; cursor:pointer; }
+  button.ghost:hover { border-color:var(--accent); color:var(--accent-ink); }
+  .btnrow { display:flex; gap:9px; flex-wrap:wrap; margin-top:16px; }
 
-  /* ---------- pilot roster ---------- */
-  .roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); gap: 14px; }
-  .pilot-card {
-    text-align: left; font: inherit; cursor: pointer;
-    background: var(--surface); border: 1px solid var(--rule-soft);
-    border-radius: 4px; padding: 18px 19px;
-    display: flex; flex-direction: column; gap: 11px;
-    transition: border-color .15s, transform .15s;
-  }
-  .pilot-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .pilot-card .nm { font-size: 19px; font-weight: 660; letter-spacing: -0.015em; }
-  .pilot-card .tm { font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-muted); }
-  .pilot-card .st { color: var(--ink-2); font-size: 13.5px; line-height: 1.5; }
-  .pilot-card .go { font-family: var(--mono); font-size: 11px; letter-spacing: 0.09em; color: var(--accent-ink); text-transform: uppercase; margin-top: auto; }
+  textarea { width:100%; min-height:220px; font-family:var(--mono); font-size:12.5px; line-height:1.5; padding:13px; border:1px solid var(--rule); border-radius:3px; background:var(--surface-2); color:var(--ink); resize:vertical; }
+  select { font:inherit; font-size:13.5px; padding:7px 10px; border:1px solid var(--rule); border-radius:3px; background:var(--surface-2); color:var(--ink); }
+  .filters { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px; }
+  .filters label { font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-muted); }
 
-  /* ---------- pilot detail ---------- */
-  .backlink {
-    background: none; border: 0; font: inherit; font-family: var(--mono);
-    font-size: 11.5px; letter-spacing: 0.09em; text-transform: uppercase;
-    color: var(--ink-muted); cursor: pointer; padding: 0; margin-bottom: 14px;
-  }
-  .backlink:hover { color: var(--accent-ink); }
+  .pilot-card { text-align:left; font:inherit; cursor:pointer; background:var(--surface); border:1px solid var(--rule-soft); border-radius:4px; padding:17px 18px; display:flex; flex-direction:column; gap:9px; transition:border-color .15s, transform .15s; }
+  .pilot-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .pilot-card.mine { border-color:var(--accent); }
+  .pilot-card .nm { font-size:18px; font-weight:660; letter-spacing:-.015em; }
+  .pilot-card .tm { font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-muted); }
+  .pilot-card .st { color:var(--ink-2); font-size:13px; line-height:1.5; }
+  .roster { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:13px; }
 
-  .trait { border-top: 1px solid var(--rule-soft); padding: 14px 0; }
-  .trait:first-of-type { border-top: 0; }
-  .trait .hd { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 7px; }
-  .trait .hd h4 { flex: 1 1 auto; }
-  .quote {
-    border-left: 2px solid var(--rule);
-    padding: 2px 0 2px 13px;
-    color: var(--ink-2);
-    font-size: 13.5px;
-    line-height: 1.55;
-  }
-  .quote cite { display: block; font-style: normal; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.07em; color: var(--ink-muted); margin-top: 6px; text-transform: uppercase; }
+  .backlink { background:none; border:0; font:inherit; font-family:var(--mono); font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-muted); cursor:pointer; padding:0; margin-bottom:14px; }
+  .backlink:hover { color:var(--accent-ink); }
 
-  /* ---------- discipline board ---------- */
-  .disc { background: var(--surface); border: 1px solid var(--rule-soft); border-radius: 4px; padding: 18px 20px; }
-  .disc h3 { margin-bottom: 4px; }
-  .disc .q { color: var(--ink-muted); font-size: 12.5px; margin-bottom: 14px; }
-  .rank { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-top: 1px solid var(--rule-soft); }
-  .rank:first-of-type { border-top: 0; }
-  .rank .pos {
-    font-family: var(--mono); font-size: 11px; font-weight: 700;
-    width: 20px; flex: none; padding-top: 3px;
-    color: var(--ink-muted);
-  }
-  .rank.lead .pos { color: var(--accent); }
-  .rank .body { flex: 1 1 auto; min-width: 0; }
-  .rank .who { font-weight: 640; font-size: 14.5px; }
-  .rank .who .team { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; color: var(--ink-muted); text-transform: uppercase; margin-left: 7px; font-weight: 500; }
-  .rank .ev { color: var(--ink-2); font-size: 13px; margin-top: 3px; line-height: 1.5; }
+  .chip { display:inline-block; font-family:var(--mono); font-size:10px; letter-spacing:.09em; text-transform:uppercase; font-weight:600; padding:2px 7px; border-radius:2px; background:var(--surface-sunk); color:var(--ink-2); border:1px solid var(--rule-soft); }
 
-  /* ---------- tables ---------- */
-  .tw { overflow-x: auto; border: 1px solid var(--rule-soft); border-radius: 4px; background: var(--surface); }
-  table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 460px; }
-  th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
-  thead th {
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--ink-muted); font-weight: 600;
-    background: var(--surface-sunk); border-bottom: 1px solid var(--rule);
-  }
-  tbody tr:last-child td { border-bottom: 0; }
-  td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  caption { caption-side: bottom; text-align: left; padding: 9px 14px; color: var(--ink-muted); font-size: 12px; }
+  .flow { display:flex; flex-direction:column; gap:0; }
+  .stage { display:grid; grid-template-columns:64px 1fr; gap:14px; padding:13px 0; border-top:1px solid var(--rule-soft); }
+  .stage:first-child { border-top:0; }
+  .stage .sn { font-family:var(--mono); font-size:12px; font-weight:700; color:var(--accent); padding-top:2px; }
+  .stage .sb h4 { margin-bottom:4px; }
+  .stage .sb p { color:var(--ink-2); font-size:13.5px; }
+  .stage .sb .cut { font-family:var(--mono); font-size:11px; color:var(--crit); margin-top:5px; display:block; }
 
-  /* ---------- circuits ---------- */
-  .circuit { background: var(--surface); border: 1px solid var(--rule-soft); border-radius: 4px; padding: 18px 20px; }
-  .circuit .hd { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 3px; }
-  .circuit .yr { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); letter-spacing: 0.08em; }
-  .chip {
-    display: inline-block; font-family: var(--mono); font-size: 10px;
-    letter-spacing: 0.09em; text-transform: uppercase; font-weight: 600;
-    padding: 2px 7px; border-radius: 2px;
-    background: var(--surface-sunk); color: var(--ink-2);
-    border: 1px solid var(--rule-soft);
-  }
-  .chip.flat { color: var(--s1); border-color: color-mix(in srgb, var(--s1) 40%, transparent); background: color-mix(in srgb, var(--s1) 10%, transparent); }
-  .chip.tech { color: var(--s2); border-color: color-mix(in srgb, var(--s2) 40%, transparent); background: color-mix(in srgb, var(--s2) 10%, transparent); }
-  .chip.rough { color: var(--s5); border-color: color-mix(in srgb, var(--s5) 40%, transparent); background: color-mix(in srgb, var(--s5) 10%, transparent); }
-  .kv { display: grid; grid-template-columns: 116px 1fr; gap: 5px 14px; margin-top: 12px; font-size: 13.5px; }
-  .kv dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); padding-top: 3px; }
-  .kv dd { margin: 0; color: var(--ink-2); }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:2px; }
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation:none !important; transition:none !important; } }
 
-  /* ---------- callout ---------- */
-  .callout {
-    border: 1px solid var(--accent);
-    border-left-width: 2px;
-    background: var(--accent-wash);
-    border-radius: 3px;
-    padding: 15px 18px;
-  }
-  .callout .eyebrow { color: var(--accent-ink); }
-  .callout h3 { margin: 6px 0 7px; }
-  .callout p { color: var(--ink-2); font-size: 14px; }
-
-  .note { color: var(--ink-muted); font-size: 12.5px; line-height: 1.55; }
-
-  /* ---------- legend ---------- */
-  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule-soft); }
-  .legend span { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
-  .legend i { width: 10px; height: 10px; border-radius: 2px; flex: none; }
-
-  .toggle {
-    background: none; border: 1px solid var(--rule); border-radius: 3px;
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--ink-2); cursor: pointer;
-    padding: 5px 10px; margin-top: 14px;
-  }
-  .toggle:hover { border-color: var(--accent); color: var(--accent-ink); }
-
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition: none !important; }
-  }
-
-  @media (max-width: 860px) {
-    .shell { display: block; }
-    nav.rail {
-      width: auto; position: static; min-height: 0;
-      border-right: 0; border-bottom: 1px solid var(--rule);
-      display: flex; gap: 0; overflow-x: auto; padding: 10px 12px;
-    }
-    nav.rail .grp { display: flex; gap: 4px; margin: 0; padding: 0 4px; }
-    nav.rail .grp > .eyebrow { display: none; }
-    nav.rail button { width: auto; white-space: nowrap; padding: 7px 12px; }
-    nav.rail button[aria-current="true"]::before { display: none; }
-    nav.rail button .tag { display: none; }
-    main { padding: 24px 18px 70px; }
-    .kv { grid-template-columns: 1fr; }
-    .kv dd { margin-bottom: 8px; }
+  @media (max-width:880px) {
+    .shell { display:block; }
+    nav.rail { width:auto; position:static; min-height:0; border-right:0; border-bottom:1px solid var(--rule); display:flex; overflow-x:auto; padding:10px 12px; }
+    nav.rail .grp { display:flex; gap:4px; margin:0; padding:0 4px; }
+    nav.rail .grp > .eyebrow { display:none; }
+    nav.rail button { width:auto; white-space:nowrap; padding:7px 12px; }
+    nav.rail button[aria-current="true"]::before { display:none; }
+    nav.rail button .tag { display:none; }
+    main { padding:24px 18px 70px; }
+    .bar-row { grid-template-columns:96px 1fr; }
   }
 </style>
 
 <header class="masthead">
   <span class="mark">E1</span>
-  <h1>Pilot Dossier &mdash; who is best at what</h1>
-  <span class="sub">Assembled from Team Westbrook debriefs &amp; UIM E1 documents</span>
+  <h1>Scouting &mdash; the field from a Drogba seat</h1>
+  <span class="sub" id="dataState">No timing data loaded</span>
 </header>
 
 <div class="shell">
@@ -420,164 +188,80 @@
 
 <script>
 /* ==========================================================================
-   DATA
-   Every claim below is traceable to a source document. `src` names the file.
-   Nothing here is invented: where the source is qualitative, the entry is
-   qualitative; where it is a measured number, it is marked as measured.
+   1. FORMAT — UIM E1 Season 3 (2026), 10 teams.
+   Verbatim from "260303_10 Teams - Written Sporting Format S3" and
+   "260303_Qualifying Format Clarification and Update".
    ========================================================================== */
 
-const POINTS = [
-  { pos: 1, pts: 38 }, { pos: 2, pts: 31 }, { pos: 3, pts: 25 },
-  { pos: 4, pts: 20 }, { pos: 5, pts: 16 }, { pos: 6, pts: 12 },
-  { pos: 7, pts: 9  }, { pos: 8, pts: 6  }, { pos: 9, pts: 3  }
+const QUALI = [
+  { s: "Q1", who: "All 10 teams, two groups of five", detail: "Both pilots run. Two timed laps each, no aborted laps. 15-minute session. Teams ranked P1–P10 on the <strong>average of Pilot A and Pilot B&rsquo;s best laps</strong>. Dead heat is broken by the single fastest lap from either pilot.", cut: "Bottom 2 eliminated → 8 remain" },
+  { s: "Q2", who: "Top 8, two groups of four", detail: "Group A takes P8–P5, Group B takes P4–P1. Run in inverse order. <strong>One declared pilot per team</strong>, two non-consecutive attempts. No aborted laps.", cut: "Bottom 2 eliminated → 6 remain" },
+  { s: "Q3", who: "Top 6, all on the water together", detail: "Inverse order P6→P1. One pilot per team, two non-consecutive attempts.", cut: "Bottom 2 eliminated → 4 remain" },
+  { s: "Q4", who: "Top 4", detail: "Inverse order P4→P1. Two non-consecutive attempts. The Q4 result sets the final seeding for the next day&rsquo;s Group Stages &mdash; and pays 3 / 2 / 1 championship points.", cut: "Sets race-day seeding" }
 ];
 
-const BONUS = [
-  { what: "1st qualifying race", pts: "+3" },
-  { what: "2nd qualifying race", pts: "+2" },
-  { what: "3rd qualifying race", pts: "+1" },
-  { what: "Fastest race lap in the final", pts: "+1" }
+const RACEDAY = [
+  { s: "Group Stages", who: "Two groups of five", detail: "Group A: P1, P4, P5, P8, P9. Group B: P2, P3, P6, P7, P10. Each pilot races once, alternating. GS1 lane order comes from qualifying seeding; GS2 lane order from the GS1 outcome.", cut: "Group winner → Final · last place → Place Race · rest → Race Off" },
+  { s: "Race Off", who: "Six boats", detail: "Lane order from GS finishing position, ties broken by final qualifying result.", cut: "Top 4 → Finals · bottom 2 → Place Race" },
+  { s: "Place Race", who: "Four boats", detail: "Lanes 1–2 the bottom two from the Race Off, lanes 3–4 the last-place finishers from the Group Stage. Races for championship points.", cut: "Scores championship points" },
+  { s: "Final 1", who: "Six boats", detail: "Lanes 1–2 the two group winners, lanes 3–6 the top four from the Race Off. This race does not pay points &mdash; it sets the mandated lane order for Final 2.", cut: "Sets Final 2 lane order" },
+  { s: "Final 2", who: "Six boats", detail: "Lane order set by Final 1. <strong>First past the post takes the win.</strong>", cut: "The race that pays" }
 ];
 
-/* Standings as modelled in "E1 2025 podium chances" — the state going into
-   the Lagos and Miami rounds. Only the six teams Tara modelled appear. */
-const STANDINGS = [
-  { team: "Brady",  full: "Team Brady",        pts: 135, hue: "--s1" },
-  { team: "Rafa",   full: "Team Rafa",         pts: 134, hue: "--s2" },
-  { team: "Aoki",   full: "Team Aoki",         pts: 125, hue: "--s3" },
-  { team: "TBR",    full: "Team Blue Rising",  pts: 114, hue: "--s4" },
-  { team: "WSTB",   full: "Westbrook Racing",  pts:  81, hue: "--s5" },
-  { team: "Drogba", full: "Team Drogba",       pts:  79, hue: "--s6" }
+const PTS_S3 = { 1:38, 2:30, 3:24, 4:19, 5:15, 6:12, 7:9, 8:7, 9:5, 10:3 };
+const PTS_EXTRA = [
+  { w: "Top qualifier (Q4 P1)", p: 3 },
+  { w: "Runner-up qualifier (Q4 P2)", p: 2 },
+  { w: "Third-fastest qualifier (Q4 P3)", p: 1 },
+  { w: "Fastest standard lap on race day", p: 1 }
 ];
 
-/* The three end-of-season scenarios modelled in the same sheet. */
-const SCENARIOS = [
-  {
-    name: "Westbrook out of it",
-    gist: "Rivals score normally across Lagos. Even a Westbrook double win leaves them short of Aoki.",
-    rows: [
-      { team: "Aoki",  lagos: "2nd (31)",  miami: "—",       total: 156, win: true },
-      { team: "WSTB",  lagos: "1st",       miami: "1st",     total: 165, win: false, note: "incl. 8 bonus pts" },
-      { team: "Rafa",  lagos: "4th (20)",  miami: "—",       total: 154 },
-      { team: "TBR",   lagos: "1st (38)",  miami: "—",       total: 152 },
-      { team: "Brady", lagos: "5th (16)",  miami: "—",       total: 151 }
-    ]
-  },
-  {
-    name: "Alive but unlikely",
-    gist: "Westbrook wins Lagos and Miami; rivals drop to mid-pack. Still only good enough to be in touch.",
-    rows: [
-      { team: "WSTB",  lagos: "1st → 123", miami: "→ 165",   total: 165, win: true },
-      { team: "Brady", lagos: "5th → 151", miami: "no racing", total: 151 },
-      { team: "Rafa",  lagos: "5th → 150", miami: "no racing", total: 150 },
-      { team: "Aoki",  lagos: "3rd → 150", miami: "no racing", total: 150 },
-      { team: "TBR",   lagos: "2nd → 145", miami: "8th (6)",  total: 151 }
-    ]
-  },
-  {
-    name: "Westbrook in front",
-    gist: "The only modelled path to the title: win both rounds while every rival finishes 6th or worse.",
-    rows: [
-      { team: "WSTB",  lagos: "1st → 123", miami: "1st",     total: 165, win: true },
-      { team: "Aoki",  lagos: "4th → 145", miami: "8th (6)", total: 151 },
-      { team: "Brady", lagos: "6th → 147", miami: "9th (3)", total: 150 },
-      { team: "Rafa",  lagos: "6th → 146", miami: "9th (3)", total: 149 },
-      { team: "TBR",   lagos: "2nd → 145", miami: "9th (3)", total: 148 }
-    ]
-  }
+const RULES = [
+  "Every race carries <strong>one mandatory long lap and one mandatory short lap</strong>. Neither may be taken on lap 1 unless the race instructions say otherwise.",
+  "Variable boost opens at the starting yellow flag &mdash; 30 seconds before green.",
+  "Teams declare the pilot for Q2 before the session, then <strong>alternate pilots for every subsequent session</strong> across the weekend.",
+  "If a session is cancelled, the rotation does not reset &mdash; the cancelled session still counts as that pilot&rsquo;s participation.",
+  "Propeller declaration is required before Q1 and again before the Group Stage races.",
+  "Mandated lane order: the highest seed takes the next available inside lane until the grid is filled.",
+  "Two protests per team per weekend. A successful protest is retained. You must identify your team first &mdash; &ldquo;Team Drogba, requesting to submit a protest please&rdquo; &mdash; before the judge acknowledges it.",
+  "No fastest-lap point is awarded if a misplaced or drifting mark interrupted the correct racing line in any session."
 ];
 
-const PILOTS = [
+/* ==========================================================================
+   2. INTEL — qualitative scouting, every line traceable to a source document.
+   Reframed as rival intelligence. Nothing here is invented.
+   ========================================================================== */
+
+const MY_TEAM = "Drogba";
+
+const INTEL = [
   {
-    id: "sara",
-    name: "Sara",
-    team: "Westbrook Racing",
-    tag: "WSTB",
-    style: "Controlled, “locked in”",
-    summary: "The flat-water specialist. Holds a tight trim window (−0.1 to 0.1) better than anyone else on the team and converts that into sustained top-end speed. The same stiffness that makes her fast in a straight line is what costs her in chop and on corner entry.",
-    visual: "Aims for pitch of roughly −0.1 to 0.1 average trim on screen",
-    traits: [
-      { area: "Flat water", rate: "strength", quote: "Excellent at maintaining high speeds for longer durations.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
-      { area: "Trim precision", rate: "strength", quote: "Struggles to hit the low trim numbers (−0.1/0.2) Sara achieves. — written about Lucas, establishing Sara as the team benchmark.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
-      { area: "Choppy water", rate: "risk", quote: "The boat may be too stiff to adapt to wake changes, leading to speed loss.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
-      { area: "Cornering", rate: "weakness", quote: "Bow is too stiff/flat entering turns. The inner foil dives, causing significant deceleration.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
-      { area: "Propeller adaptability", rate: "weakness", quote: "Slower props (e.g. Prop 15 in Miami) struggle with her style. Pressing the bow down on a low-thrust prop lowers ride height and kills average speed.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" }
-    ],
-    fixes: [
-      "Boost off earlier into corner entry so speed drops naturally.",
-      "Target 0.4 average trim <em>leading into</em> the corner — not in it — to lift the nose.",
-      "When entry at 0.4 isn’t tactically available, use the “Timmy style” lane-3 approach: wide to the first buoy, let speed drop, trim up at the apex.",
-      "Test the trim button rather than the paddles for that manoeuvre."
-    ]
-  },
-  {
-    id: "lucas",
-    name: "Lucas",
-    team: "Westbrook Racing",
-    tag: "WSTB",
-    style: "Dynamic, nose-up, “nervous”",
-    summary: "The corner specialist and the better defender of the two. His nose-up attitude keeps the boat flying through turns where rivals bury the inner foil — proven in the Lagos time trial. The cost is a nervous bow that has already produced one total loss of control.",
-    visual: "Bow high, more nervous bow behaviour",
-    traits: [
-      { area: "Cornering", rate: "strength", quote: "“Nose Up” style helps turn faster without stuffing the foil. See Lagos Time Trial: stayed flying while others sank the inner foil.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
-      { area: "Defending", rate: "strength", quote: "Can turn sharply to defend without dropping speed, provided the boat is stable.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
-      { area: "Straight line", rate: "weakness", quote: "Struggles to hit the low trim numbers (−0.1/0.2) Sara achieves.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
-      { area: "Risk control", rate: "weakness", quote: "Susceptible to total loss of control (e.g. Maggiore Turn 1) if the turn is too aggressive while the bow is nervous.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
-      { area: "Technique adoption", rate: "neutral", quote: "Progress was made during training (specifically in Lucas’s sessions), but it was not fully utilised or automatic during the Jeddah race heats.", src: "Team Report: Jeddah GP Technical Debrief" }
-    ],
-    fixes: [
-      "Gauge how nervous the bow is before turning hard — if the boat is locked in at 0.4/0.6, it is under control to turn.",
-      "Find the specific speed at which to compress the nose; don’t lock it early before the prop generates lift.",
-      "Watch trim numbers specifically through the 85–99% speed zone.",
-      "Move “bottom-up” trim from conscious effort to muscle memory before Lake Como."
-    ]
-  },
-  {
-    id: "timmy",
-    name: "Timmy",
-    team: "Team Brazil",
-    tag: "BRA",
-    style: "Wide lines, clean air",
-    summary: "The reference for overtaking craft. His whole approach is built on never racing in dirty water: he crosses lanes early, runs wider than the natural line, and will take a clear −1 lane to keep the foil out of whitewash. Team Westbrook set Tara the task of validating his corner-entry technique in academy running.",
-    visual: "Wide of the whitewash, foil always in clean water",
+    id: "timmy", name: "Timmy", team: "Brazil", tag: "BRA", threat: "high",
+    headline: "The overtaker. Builds every move around never racing in dirty water.",
     traits: [
       { area: "Overtaking", rate: "strength", quote: "Crossing lanes, focus that the foil is clear out of the whitewash, focus that his lane is fully clean, sometimes going wider than normal or going even to clear −1 lane on the first straight in lap 3/6.", src: "Youtube videos highlights — Lagos group race 1" },
-      { area: "Clean-air management", rate: "strength", quote: "Timmy going wide out of the white wash keeping more stable through the corner, instead of unstable and dirty.", src: "Youtube videos highlights — Lagos group race 1, lap 4/6" },
-      { area: "Flat-water pace", rate: "strength", quote: "Brazil has been fast the whole weekend and is flat water course.", src: "Youtube videos highlights — Lagos" },
-      { area: "Influence", rate: "neutral", quote: "Tara to test the “Timmy Style” wide entry technique during Academy runs to validate feasibility before Sara tries it.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" }
+      { area: "Cornering in traffic", rate: "strength", quote: "Timmy going wide out of the white wash keeping more stable through the corner, instead of unstable and dirty.", src: "Youtube videos highlights — Lagos, lap 4/6" },
+      { area: "Flat-water pace", rate: "strength", quote: "Brazil has been fast the whole weekend and is flat water course.", src: "Youtube videos highlights — Lagos" }
     ],
-    fixes: []
+    counter: "He concedes track position on entry to buy clean air on exit. If you can hold the inside <em>and</em> keep your own foil out of the wash, his wide line costs him the lane rather than winning it. Westbrook rated the technique highly enough to have it tested in academy running before letting a race pilot use it."
   },
   {
-    id: "brady",
-    name: "Team Brady",
-    team: "Team Brady",
-    tag: "BRADY",
-    style: "On/off boost — “never hit low speed”",
-    summary: "Championship leader in the modelled standings, and the team Westbrook singled out for boost-strategy study. The working hypothesis is that Brady deliberately gives up peak speed to protect average speed: boost off early once the target is reached, reserve held for corner exits and fall-outs.",
-    visual: "Observed at Monaco and Miami; flagged for deeper study",
-    teamLevel: true,
+    id: "brady", name: "Team Brady", team: "Brady", tag: "BRADY", threat: "high",
+    headline: "Suspected on/off boost discipline — trades peak speed for average speed.",
     traits: [
       { area: "Boost management", rate: "strength", quote: "Brady might be using a more “ON/OFF” boost strategy. Instead of maximising top speed duration, they may boost off earlier to preserve boost for fall-outs & corners, focusing on never hitting low speeds rather than chasing maximum top speed.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis — stated as a hypothesis" },
-      { area: "Average speed", rate: "strength", quote: "Higher average speed over the race distance due to fewer major speed drops.", src: "Jeddah 2026 — Boost Strategy Analysis table, Strategy B" },
-      { area: "Risk profile", rate: "strength", quote: "Lower: reduces the chance of stalling; ensures energy is available if speed drops too low.", src: "Jeddah 2026 — Boost Strategy Analysis table, Strategy B" },
-      { area: "Open question", rate: "neutral", quote: "Boost strategy in more detail version. Focus deeply: other teams are cutting or activating the boost — BRADY situation in MONACO.", src: "What to improve after Lake Maggiore (Tara’s view)" }
+      { area: "Average speed", rate: "strength", quote: "Higher average speed over the race distance due to fewer major speed drops.", src: "Jeddah 2026 — Boost Strategy Analysis, Strategy B" },
+      { area: "Still unverified", rate: "neutral", quote: "Focus deeply: other teams are cutting or activating the boost — BRADY situation in MONACO.", src: "What to improve after Lake Maggiore (Tara’s view)" }
     ],
-    fixes: []
+    counter: "This is a <strong>hypothesis nobody has tested</strong>. It is also the single most checkable claim in the archive: with boost-state telemetry or even decent onboard footage across one race, you either confirm it or kill it. If it holds, the counter is to force them into situations where they need sustained boost — long straights where a reserve strategy leaves speed on the table."
   },
   {
-    id: "tbr",
-    name: "Team Blue Rising",
-    team: "Team Blue Rising",
-    tag: "TBR",
-    style: "Early long lap",
-    summary: "The only rival with measured lap data in the archive. At the Lagos group race TBR took the mandatory long lap early — lap 2 of 6 — from second place, and the sheet records what it cost and what it recovered.",
-    visual: "Long lap taken at lap 2 of 6",
-    teamLevel: true,
+    id: "tbr", name: "Team Blue Rising", team: "TBR", tag: "TBR", threat: "medium",
+    headline: "Takes the mandatory long lap early and uses it to reset track position.",
     measured: [
       { k: "Position before long lap", v: "2nd" },
       { k: "Gap behind to leader", v: "7.9 / 9.3 s" },
-      { k: "Gap to leader (after)", v: "3.6 s" },
+      { k: "Gap to leader after", v: "3.6 s" },
       { k: "Short lap average", v: "−10 s" },
       { k: "Long lap average", v: "12 s" },
       { k: "Long lap taken", v: "Lap 2 of 6" }
@@ -585,319 +269,317 @@ const PILOTS = [
     traits: [
       { area: "Long-lap timing", rate: "strength", quote: "Group race Lagos — position before long lap 2, gap behind to leader 7.9/9.3, gap to leader 3.6, short lap avg −10, long lap time avg 12, when does long lap 2/6.", src: "TBR strategies LONG LAPS — the only measured rival dataset in the archive" }
     ],
-    fixes: []
-  }
-];
-
-const DISCIPLINES = [
-  {
-    q: "Fastest in a straight line on flat water",
-    note: "Sustained top-end speed, not peak.",
-    ranks: [
-      { who: "Sara", team: "WSTB", ev: "“Excellent at maintaining high speeds for longer durations.” Holds −0.1 to 0.1 trim, the team benchmark." },
-      { who: "Timmy", team: "BRA", ev: "“Brazil has been fast the whole weekend” at Lagos — a flat-water course." },
-      { who: "Lucas", team: "WSTB", ev: "“Struggles to hit the low trim numbers (−0.1/0.2) Sara achieves.”" }
-    ]
+    counter: "Taking it at lap 2 of 6 means they absorb the 12-second penalty while the pack is still bunched, then run clean air for four laps. The counter is either to go with them, or to take yours late and back them into traffic. Note the short lap is worth roughly 10 seconds against a 12-second long lap &mdash; the net cost of the pair is small, so the timing matters more than the laps themselves."
   },
   {
-    q: "Best through corners",
-    note: "Carrying speed without burying the inner foil.",
-    ranks: [
-      { who: "Lucas", team: "WSTB", ev: "Lagos time trial — “stayed flying while others sank the inner foil.” Nose-up entry keeps the foil clear." },
-      { who: "Timmy", team: "BRA", ev: "Goes wide out of the whitewash, “keeping more stable through the corner, instead of unstable and dirty.”" },
-      { who: "Sara", team: "WSTB", ev: "“Bow is too stiff/flat entering turns. The inner foil dives, causing significant deceleration.”" }
-    ]
-  },
-  {
-    q: "Best overtaker",
-    note: "Making passes stick in traffic.",
-    ranks: [
-      { who: "Timmy", team: "BRA", ev: "Whole-race lane management: crosses lanes early, runs wide, will take a clear −1 lane to keep the foil out of whitewash." },
-      { who: "Lucas", team: "WSTB", ev: "Stronger in the mirror than ahead — “can turn sharply to defend without dropping speed.”" }
-    ]
-  },
-  {
-    q: "Best boost management",
-    note: "20 s allowance, 2:1 recharge, 5 s lockout at zero.",
-    ranks: [
-      { who: "Team Brady", team: "BRADY", ev: "Hypothesised on/off strategy — boost off early, reserve kept for exits and fall-outs, “never hitting low speeds.”" },
-      { who: "Westbrook", team: "WSTB", ev: "Corrective protocol still being written: “Ensure the boost is not underutilised” and “never allow the boost to reach 0%.”" }
-    ]
-  },
-  {
-    q: "Best in rough water",
-    note: "Adapting to wake and sea state.",
-    ranks: [
-      { who: "Lucas", team: "WSTB", ev: "Loose, dynamic bow adapts to chop — but carries the highest loss-of-control risk when pushed." },
-      { who: "Sara", team: "WSTB", ev: "“The boat may be too stiff to adapt to wake changes, leading to speed loss.”" }
+    id: "sara", name: "Sara", team: "Westbrook", tag: "WSTB", threat: "medium",
+    headline: "Flat-water specialist. Fast in a straight line, vulnerable on entry and in chop.",
+    traits: [
+      { area: "Flat water", rate: "strength", quote: "Excellent at maintaining high speeds for longer durations.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
+      { area: "Trim precision", rate: "strength", quote: "Aims for pitch of approximately −0.1 to 0.1 trim average on screen — the tightest window on the team.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
+      { area: "Choppy water", rate: "risk", quote: "The boat may be too stiff to adapt to wake changes, leading to speed loss.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
+      { area: "Cornering", rate: "weakness", quote: "Bow is too stiff/flat entering turns. The inner foil dives, causing significant deceleration.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
+      { area: "Prop adaptability", rate: "weakness", quote: "Slower props (e.g. Prop 15 in Miami) struggle with her style. Pressing the bow down on a low-thrust prop lowers ride height and kills average speed.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" }
     ],
-    caveat: "No rival is assessed on rough water anywhere in the archive. This ranking is internal to Westbrook only."
+    counter: "Attack on corner entry, not on the straight. Her inner foil dives when the bow is flat, which costs her significant deceleration &mdash; that is where the pass is. In chop she loses speed she cannot recover on a short straight. Watch the propeller declaration: on a small prop she is materially weaker."
   },
   {
-    q: "Best race-strategy call",
-    note: "When to take the mandatory long lap.",
-    ranks: [
-      { who: "Team Blue Rising", team: "TBR", ev: "Lagos — took the long lap at lap 2 of 6 from 2nd, and came out 3.6 s off the leader having been 7.9–9.3 s behind." }
+    id: "lucas", name: "Lucas", team: "Westbrook", tag: "WSTB", threat: "medium",
+    headline: "Corner specialist and stubborn defender. Carries real crash risk when pushed.",
+    traits: [
+      { area: "Cornering", rate: "strength", quote: "“Nose Up” style helps turn faster without stuffing the foil. See Lagos Time Trial: stayed flying while others sank the inner foil.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
+      { area: "Defending", rate: "strength", quote: "Can turn sharply to defend without dropping speed, provided the boat is stable.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
+      { area: "Straight line", rate: "weakness", quote: "Struggles to hit the low trim numbers (−0.1/0.2) Sara achieves.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" },
+      { area: "Risk control", rate: "weakness", quote: "Susceptible to total loss of control (e.g. Maggiore Turn 1) if the turn is too aggressive while the bow is nervous.", src: "Jeddah 2026: Testing Strategy & Pilot Analysis" }
     ],
-    caveat: "TBR is the only team with long-lap timing recorded, so this is a sample of one."
+    counter: "The pass is on the straight, not the corner &mdash; he gives up trim numbers Sara can hit. Defensively he is hard to move, but the qualifier in his own team&rsquo;s note is &ldquo;provided the boat is stable&rdquo;. Pressure him into an aggressive turn with a nervous bow and the archive says he can lose it completely."
   }
 ];
 
-const CIRCUITS = [
-  {
-    name: "Lake Maggiore", year: "2025", type: ["rough"],
-    character: "The round that generated Westbrook’s longest improvement list.",
-    learned: "Lucas suffered a total loss of control at Turn 1 — the reference incident for his risk profile.",
-    setup: "Lift 175 carried forward to Monaco, flat and rough water alike.",
-    open: "Trim pedals vs steering percentage, Lucas vs Sara in rough water; how to control roll when up in the air.",
-    src: "What to improve after Lake Maggiore (Tara’s view)"
-  },
-  {
-    name: "Monaco", year: "2025", type: ["rough"],
-    character: "Rough water, and the round where Brady’s boost behaviour first drew attention.",
-    learned: "A jump start highlighted how much real sea-state difference matters to start timing.",
-    setup: "16 prop for rough water. Lift to 175. Trim sensitivity raised from 7/8 to 12. Buoys at 75° / −90°, round-then-straight-line mode.",
-    open: "“Focus deeply: other teams are cutting or activating the boost — BRADY situation in MONACO.”",
-    src: "Brainstorm Monaco 2025 · What to improve after Lake Maggiore"
-  },
-  {
-    name: "Lagos", year: "2025", type: ["flat"],
-    character: "Flat water. Brazil’s weekend — fast throughout.",
-    learned: "Lucas’s time trial is the team’s best evidence for nose-up cornering: he stayed flying while others sank the inner foil. TBR took the long lap at lap 2 of 6.",
-    setup: "Long-lap timing became the strategic variable; short lap averaged −10 s against a 12 s long lap.",
-    open: "Live ride-height feedback from the spotter; better wording on short/standard/long lap calls while racing.",
-    src: "Youtube videos highlights · TBR strategies LONG LAPS · Jeddah 2026 Pilot Analysis"
-  },
-  {
-    name: "Miami", year: "2025", type: ["flat"],
-    character: "Long straights — the continuous-boost course.",
-    learned: "Prop 15 exposed Sara’s style: pressing the bow down on a low-thrust prop lowered ride height and killed average speed.",
-    setup: "Big prop, continuous boost. The opposite of the Jeddah recipe.",
-    open: "Whether Brady’s on/off boost approach beats sustained boost even here.",
-    src: "Jeddah 2026: Testing Strategy & Pilot Analysis"
-  },
-  {
-    name: "Jeddah", year: "2026", type: ["tech"],
-    character: "A course that changed character after lap 1 — a long straight first, then chicanes.",
-    learned: "The fleet accelerated at 16 s while Westbrook counted 15 s, dropping them half a boat length back and into dirty water as the leaders angled across their bow.",
-    setup: "Small prop (15) with pulsed boost in the flat moments between buoys. The smaller prop cost no significant straight-line speed.",
-    open: "Bottom-up trim was trained but not automatic under race pressure — the primary drill for Lake Como.",
-    src: "Team Report: Jeddah GP Technical Debrief & Future Strategy"
-  },
-  {
-    name: "Lake Como", year: "2026", type: ["tech"],
-    character: "Next target event. Course profile not yet in the archive.",
-    learned: "—",
-    setup: "Decision pending: Miami recipe (long straights → big prop, continuous boost) or Jeddah recipe (chicanes → small prop, corner boosting).",
-    open: "Analyse the course map as soon as it is available.",
-    src: "Team Report: Jeddah GP Technical Debrief & Future Strategy"
-  },
-  {
-    name: "Puerto Banús", year: "S1", type: ["rough"],
-    character: "Historic reference point for the hardware.",
-    learned: "The “high response” torque map (150 Nm, ±400 Nm/s) was introduced after this round.",
-    setup: "Intended for rougher sea states — gives pilots a better chance of avoiding motor overspeed when lifting off throttle where the prop is likely to exit the water.",
-    open: "—",
-    src: "Racebird System Operation v01 (UIM E1 official)"
-  }
+/* Known weakness of Westbrook's own operation, useful because it is a
+   documented failure mode any team can repeat — including yours. */
+const FIELD_NOTES = [
+  { t: "The 15 vs 16 second start", d: "At Jeddah the fleet accelerated at 16 s while Westbrook counted 15 s. Half a boat length back, the leading boats angle inward and cross their wakes over the bow, trapping the boat in dirty water and costing the lane. Their conclusion: prioritise lane defence over timing precision.", src: "Team Report: Jeddah GP Technical Debrief" },
+  { t: "Boost to zero is a 7-second mistake", d: "Full depletion triggers a 5-second lockout, and about 2 seconds after hitting 0% the nose rises uncontrollably and the boat falls off the foil. Watch for rivals running the allowance dry — that is a passing opportunity on a known clock.", src: "Team Report: Jeddah GP Technical Debrief · Racebird System Operation" },
+  { t: "Turn / Flat / Turn", d: "On 180° corners with multiple buoys, the quick way through is a sharp bank at buoy 1, aggressively level between buoys with boost applied in the flat, then a sharp bank at buoy 2 — rather than one continuous bank dragging the inner foil.", src: "Team Report: Jeddah GP Technical Debrief" },
+  { t: "Course character picks the propeller", d: "Miami pattern: long straights, big prop, continuous boost. Jeddah pattern: chicanes, small prop, boost pulsed between buoys. Jeddah showed the small prop cost no meaningful straight-line speed. Propeller is declared before Q1 and again before the Group Stages — so a rival's declaration tells you which pattern they have committed to.", src: "Team Report: Jeddah GP Technical Debrief · Sporting Format S3" }
 ];
 
-const PROPS = [
-  { p: "15", top: "No significant loss on straights", corner: "Needs power and boost applied in the turns", trim: "Runs higher trim numbers (~1.0 vs 0.3)", use: "Technical courses — Jeddah" },
-  { p: "16", top: "Slower top speed", corner: "Better power lining out of corners; more handy on sharp corners", trim: "—", use: "Rough water — Monaco; save boost for straights" },
-  { p: "17", top: "Better top speed", corner: "Needs more boost through corner exits", trim: "—", use: "Save some boost if corners are sharp" }
-];
-
-const LIFT = [
-  { s: "Lift 180", pts: [
-    "Rear elevator pushes the stern up less; main foils carry more of the boat’s weight",
-    "Prop sits raised enough to pierce the surface — so you can’t fly as high",
-    "Easier working zone of the foils; real trim angle runs more negative",
-    "More pitch-up demanded to hold ride height; bow feels loose and uncontrolled",
-    "Easier to steer through choppy water; less chance of flying out",
-    "More stable overall — the foils work in a more tolerant zone"
-  ]},
-  { s: "Lift 120", pts: [
-    "Rear elevator helps control the bow; balance shared across all three foils",
-    "Take-off and acceleration with trim less negative, around −0.6",
-    "Reaches higher ride height — prop is lower, foils work in a lower zone",
-    "At maximum ride height the foiling is twitchy and nervous; needs more bow control",
-    "Warning sign: the tail starts moving “like a happy dog” — you can’t stay there long",
-    "Probably more intermittent boost, since the boat reaches top speed and high ride height more easily"
-  ]}
-];
-
-const TRIM_MAP = [
-  { real: "1.0", dash: "−1.0" }, { real: "0.5", dash: "−0.5" }, { real: "0", dash: "0" },
-  { real: "−0.5", dash: "0.5" }, { real: "−1.0", dash: "1.0" },
-  { real: "−1.5", dash: "1.0" }, { real: "−2.0", dash: "2.0" }
-];
-
-const BOOST_RULES = [
+const BOOST_FACTS = [
   { k: "Total allowance", v: "20 seconds, decrementing while active" },
   { k: "Recharge", v: "2:1 — two seconds of recharge restores one second of boost" },
   { k: "Cooldown", v: "5 seconds minimum once fully depleted" },
-  { k: "Boost map", v: "Rotary position 9 and above is maximum power; each position below 9 is −5 kW" },
-  { k: "LED ring", v: "Off = unavailable · Purple = available · Solid green = active · Flashing green = about to deplete" }
-];
-
-const TORQUE = [
-  { pos: "1", d: "Garage map", n: "Max 10 Nm, ±200 Nm/s, seawater pump disabled" },
-  { pos: "2", d: "No torque", n: "Max 0 Nm" },
-  { pos: "3", d: "Low torque", n: "Max 100 Nm, ±200 Nm/s" },
-  { pos: "4, 6–11", d: "Default on-water", n: "Max 150 Nm, ±200 Nm/s" },
-  { pos: "5", d: "High response", n: "Max 150 Nm, ±400 Nm/s — introduced after Puerto Banús for rough seas" },
-  { pos: "12", d: "Pedal calibration", n: "Max 0 Nm" }
-];
-
-const LIMITS = [
-  { p: "State of charge", l: "Min 20%", n: "Must leave the track above 20%; above 15% at the dock; limp-home mode at 10%" },
-  { p: "Motor speed", l: "Max 7000 rpm", n: "Inverter shuts down above 7000 rpm" },
-  { p: "Motor temperature", l: "Max 190 °C", n: "" },
-  { p: "Inverter temperature", l: "Max 80 °C", n: "" },
-  { p: "RESS temperature", l: "Max 62 °C", n: "" },
-  { p: "RESS inlet pressure", l: "Max 1.8 barA", n: "" },
-  { p: "DCDC temperature", l: "Max 105 °C", n: "" },
-  { p: "LV battery voltage", l: "Min 12.5 V", n: "Permanent damage possible below this — switch the boat off in P0/P1" },
-  { p: "Isolation resistance", l: "20,000 kΩ internal", n: "10,000 kΩ external, shown when in drive mode (P2)" }
-];
-
-const PROTOCOLS = [
-  {
-    t: "Turn / Flat / Turn",
-    p: "On technical turns — especially 180° corners with multiple buoys — avoid one continuous bank. Sharp bank at buoy 1, aggressively level the boat between buoys and apply boost there, sharp bank at buoy 2. The error to avoid is dragging the inner foil through the whole radius.",
-    src: "Team Report: Jeddah GP Technical Debrief"
-  },
-  {
-    t: "Never let boost reach zero",
-    p: "Full depletion triggers a 5-second lockout, and roughly 2 seconds after hitting 0% the nose rises uncontrollably and the boat falls off the foil. Cut boost manually before depletion — and with smaller props running higher trim (1.0 vs 0.3), execute one click of trim down immediately before cutting, or the power loss lifts the nose.",
-    src: "Team Report: Jeddah GP Technical Debrief"
-  },
-  {
-    t: "Lane defence beats timing precision",
-    p: "At Jeddah the fleet accelerated at 16 s against Westbrook’s 15 s count. Half a boat length back, the leading boats angle inward and cross their wakes across the bow — trapping the boat in dirty water and costing the lane. If the fleet moves early, match the jump immediately.",
-    src: "Team Report: Jeddah GP Technical Debrief"
-  },
-  {
-    t: "Shootout take-off",
-    p: "Arrive at the time-trial start line at maximum speed without depleting boost — get foil-borne and up to race speed on propeller and take-off technique alone. Boost spent on a short runway yields diminishing returns; the same seconds are worth more inside the timed lap.",
-    src: "Team Report: Jeddah GP Technical Debrief"
-  }
-];
-
-const SOURCES = [
-  { f: "E1 2025 podium chances", w: "Google Drive · E1 Series", d: "Championship standings, points table, three end-of-season scenarios" },
-  { f: "Jeddah 2026: Testing Strategy & Pilot Analysis", w: "Google Drive · E1 Series / 2026", d: "Pilot profiles for Sara and Lucas, speed-zone trim targets, boost strategy comparison" },
-  { f: "Team Report: Jeddah GP Technical Debrief & Future Strategy", w: "Google Drive · 2026 / westbrook / Jeddah", d: "Start procedure, Turn/Flat/Turn, prop 15 vs 16, boost depletion protocol, shootout technique" },
-  { f: "TBR strategies LONG LAPS", w: "Google Drive · E1 Series", d: "The only measured rival lap data — TBR at the Lagos group race" },
-  { f: "Youtube videos highlights", w: "Google Drive · E1 Series", d: "Timmy / Brazil overtaking analysis, Lagos group race 1" },
-  { f: "What to improve after Lake Maggiore (Tara’s view)", w: "Google Drive · E1 Series", d: "Post-Maggiore priority list, Monaco settings, open study questions" },
-  { f: "PROPS · LIFT TIPS · Engine trim REAL", w: "Google Drive · E1 Series", d: "Propeller characteristics, lift 120 vs 180, dash-to-real trim mapping" },
-  { f: "Racebird System Operation v01", w: "Dropbox · /E1", d: "UIM E1 official: boost regulations, torque maps, cockpit displays, operating limits" },
-  { f: "Data collection · E1 Data Collection 2026", w: "Google Drive · E1 Series", d: "Empty telemetry capture templates — schema only, no rows recorded" }
-];
-
-const GAPS = [
-  { t: "No per-pilot race results", d: "The archive has no finishing positions, lap times or qualifying results by pilot. Standings are recorded at team level only, and only for the six teams modelled in the podium-chances sheet." },
-  { t: "Standings are a snapshot, not a final table", d: "The 135 / 134 / 125 / 114 / 81 / 79 figures are the state going into Lagos and Miami in 2025. No end-of-season table exists in the folder, and no 2026 standings at all." },
-  { t: "Rival pilots are named inconsistently", d: "Brady and TBR are discussed as teams; Timmy is the only rival pilot named. “Jimmy style” is referenced once as a technique without an attached pilot record." },
-  { t: "The telemetry templates are empty", d: "“Data collection” defines the right columns — propeller, engine height, trim on dash, real LE angle, speed into and after the turn, heel angle, RPM, boost — but no session rows have been entered. Filling these is what would turn this qualitative dossier into a measured one." },
-  { t: "Only one rival dataset is measured", d: "TBR’s long-lap timing at Lagos is the single quantitative record of a competitor anywhere in the folder." }
+  { k: "Opens", v: "At the starting yellow flag, 30 seconds before green" },
+  { k: "Boost map", v: "Rotary position 9+ is maximum power; each position below 9 is −5 kW" },
+  { k: "LED ring", v: "Purple = available · Solid green = active · Flashing green = about to deplete" }
 ];
 
 /* ==========================================================================
-   RENDER
+   3. DATA ENGINE — parses pasted results and computes everything.
    ========================================================================== */
 
-const el = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstElementChild; };
-const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const SCHEMA = [
+  { col: "event",    req: true,  desc: "Round name, e.g. Monaco",           alias: ["event","round","gp","race event","venue"] },
+  { col: "session",  req: true,  desc: "Q1 Q2 Q3 Q4 GS1 GS2 RACEOFF PLACE FINAL1 FINAL2", alias: ["session","stage","phase","heat"] },
+  { col: "team",     req: true,  desc: "Team name",                          alias: ["team","entrant"] },
+  { col: "pilot",    req: true,  desc: "Pilot name",                         alias: ["pilot","driver","name"] },
+  { col: "position", req: false, desc: "Finishing / classified position",    alias: ["position","pos","finish","result","rank","place"] },
+  { col: "lane",     req: false, desc: "Starting lane",                      alias: ["lane","grid","start","startlane"] },
+  { col: "bestLap",  req: false, desc: "Best lap — 1:23.456 or 83.456",      alias: ["bestlap","best lap","lap","laptime","lap time","time","best"] },
+  { col: "s1",       req: false, desc: "Sector 1 time",                      alias: ["s1","sector1","sector 1"] },
+  { col: "s2",       req: false, desc: "Sector 2 time",                      alias: ["s2","sector2","sector 2"] },
+  { col: "s3",       req: false, desc: "Sector 3 time",                      alias: ["s3","sector3","sector 3"] },
+  { col: "points",   req: false, desc: "Points scored (else derived)",       alias: ["points","pts","score"] },
+  { col: "notes",    req: false, desc: "Free text",                          alias: ["notes","note","comment","comments"] }
+];
 
-const RATE_LABEL = { strength: "Strength", risk: "Risk", weakness: "Weakness", neutral: "Noted" };
+const QUAL_SESSIONS = ["Q1","Q2","Q3","Q4"];
+const RACE_SESSIONS = ["GS1","GS2","RACEOFF","PLACE","FINAL1","FINAL2"];
 
-/* ---- Season ---- */
-function viewSeason() {
-  const max = Math.max(...STANDINGS.map(s => s.pts));
-  const leader = STANDINGS[0], wstb = STANDINGS.find(s => s.tag === "WSTB" || s.team === "WSTB");
+let DB = { rows: [], loadedAt: null };
 
-  const bars = STANDINGS.map(s => `
-    <div class="bar-row">
-      <span class="lbl">${esc(s.full)}</span>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:${(s.pts / max * 100).toFixed(1)}%; background: var(${s.hue});">
-          <span class="val">${s.pts}</span>
+function parseTime(v) {
+  if (v === undefined || v === null) return null;
+  let s = String(v).trim().replace(",", ".");
+  if (!s || s === "-" || s === "—") return null;
+  const m = s.match(/^(?:(\d+):)?(\d+(?:\.\d+)?)$/);
+  if (!m) return null;
+  const min = m[1] ? parseInt(m[1], 10) : 0;
+  const sec = parseFloat(m[2]);
+  if (!isFinite(sec)) return null;
+  return min * 60 + sec;
+}
+function fmtTime(t) {
+  if (t === null || t === undefined || !isFinite(t)) return "—";
+  const m = Math.floor(t / 60), s = t - m * 60;
+  return m > 0 ? `${m}:${s.toFixed(3).padStart(6, "0")}` : s.toFixed(3);
+}
+function fmtGap(d) {
+  if (d === null || !isFinite(d)) return "—";
+  return (d > 0 ? "+" : "") + d.toFixed(3);
+}
+function normSession(v) {
+  const s = String(v || "").toUpperCase().replace(/[\s_\-.]/g, "");
+  if (/^Q[1-4]$/.test(s)) return s;
+  if (/^(GS1|GROUPSTAGE1|GROUP1|G1)$/.test(s)) return "GS1";
+  if (/^(GS2|GROUPSTAGE2|GROUP2|G2)$/.test(s)) return "GS2";
+  if (/^(RACEOFF|RO)$/.test(s)) return "RACEOFF";
+  if (/^(PLACE|PLACERACE|PR)$/.test(s)) return "PLACE";
+  if (/^(FINAL1|F1)$/.test(s)) return "FINAL1";
+  if (/^(FINAL2|F2|FINAL)$/.test(s)) return "FINAL2";
+  return s || "?";
+}
+
+function parsePaste(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length);
+  if (lines.length < 2) throw new Error("Need a header row and at least one data row.");
+  const tabs = (lines[0].match(/\t/g) || []).length;
+  const commas = (lines[0].match(/,/g) || []).length;
+  const semis = (lines[0].match(/;/g) || []).length;
+  const delim = tabs >= Math.max(commas, semis) ? "\t" : (semis > commas ? ";" : ",");
+
+  const split = (line) => {
+    if (delim !== ",") return line.split(delim).map(c => c.trim());
+    const out = []; let cur = "", q = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { if (q && line[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
+      else if (c === "," && !q) { out.push(cur.trim()); cur = ""; }
+      else cur += c;
+    }
+    out.push(cur.trim());
+    return out;
+  };
+
+  const head = split(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim());
+  const map = {};
+  SCHEMA.forEach(f => {
+    const i = head.findIndex(h => f.alias.includes(h));
+    if (i >= 0) map[f.col] = i;
+  });
+  const missing = SCHEMA.filter(f => f.req && map[f.col] === undefined).map(f => f.col);
+  if (missing.length) throw new Error(`Missing required column(s): ${missing.join(", ")}. Found headers: ${head.join(" | ")}`);
+
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const c = split(lines[i]);
+    const get = (k) => map[k] !== undefined ? (c[map[k]] ?? "").trim() : "";
+    const pilot = get("pilot"), team = get("team");
+    if (!pilot && !team) continue;
+    const posRaw = get("position");
+    const pos = posRaw === "" ? null : parseInt(posRaw.replace(/\D/g, ""), 10);
+    const laneRaw = get("lane");
+    const lane = laneRaw === "" ? null : parseInt(laneRaw.replace(/\D/g, ""), 10);
+    const ptsRaw = get("points");
+    rows.push({
+      event: get("event") || "—",
+      session: normSession(get("session")),
+      team, pilot,
+      position: isFinite(pos) ? pos : null,
+      lane: isFinite(lane) ? lane : null,
+      bestLap: parseTime(get("bestLap")),
+      s1: parseTime(get("s1")), s2: parseTime(get("s2")), s3: parseTime(get("s3")),
+      points: ptsRaw === "" ? null : (parseFloat(ptsRaw) || 0),
+      notes: get("notes")
+    });
+  }
+  if (!rows.length) throw new Error("No usable data rows found.");
+  return rows;
+}
+
+/* ---- derived analytics ---- */
+
+function events() { return [...new Set(DB.rows.map(r => r.event))]; }
+function pilots() {
+  const m = new Map();
+  DB.rows.forEach(r => { if (r.pilot && !m.has(r.pilot)) m.set(r.pilot, r.team); });
+  return [...m.entries()].map(([pilot, team]) => ({ pilot, team }));
+}
+function teams() { return [...new Set(DB.rows.map(r => r.team).filter(Boolean))]; }
+
+/* Purple = outright fastest of that sector across the whole event. */
+function purpleHolders(evt) {
+  const rows = DB.rows.filter(r => r.event === evt);
+  const out = {};
+  ["s1","s2","s3","bestLap"].forEach(k => {
+    const valid = rows.filter(r => r[k] !== null);
+    if (!valid.length) { out[k] = null; return; }
+    const best = valid.reduce((a, b) => (b[k] < a[k] ? b : a));
+    out[k] = { pilot: best.pilot, team: best.team, t: best[k], session: best.session };
+  });
+  return out;
+}
+
+function pilotStats(name) {
+  const rows = DB.rows.filter(r => r.pilot === name);
+  const races = rows.filter(r => RACE_SESSIONS.includes(r.session));
+  const quals = rows.filter(r => QUAL_SESSIONS.includes(r.session));
+  const finals = rows.filter(r => r.session === "FINAL2");
+  const scored = rows.filter(r => r.session === "FINAL2" || r.session === "PLACE");
+
+  const finishPositions = races.filter(r => r.position !== null).map(r => r.position);
+  const laps = rows.filter(r => r.bestLap !== null).map(r => r.bestLap);
+
+  // consistency: spread between best and median lap
+  let consistency = null, stdev = null;
+  if (laps.length >= 3) {
+    const sorted = [...laps].sort((a, b) => a - b);
+    const med = sorted[Math.floor(sorted.length / 2)];
+    consistency = med - sorted[0];
+    const mean = laps.reduce((a, b) => a + b, 0) / laps.length;
+    stdev = Math.sqrt(laps.reduce((a, b) => a + (b - mean) ** 2, 0) / laps.length);
+  }
+
+  // racecraft: positions gained vs starting lane
+  const gainRows = races.filter(r => r.position !== null && r.lane !== null);
+  const netGain = gainRows.length ? gainRows.reduce((a, r) => a + (r.lane - r.position), 0) : null;
+
+  // purple sectors across all events
+  let purples = 0, fastestLaps = 0;
+  events().forEach(e => {
+    const p = purpleHolders(e);
+    ["s1","s2","s3"].forEach(k => { if (p[k] && p[k].pilot === name) purples++; });
+    const rd = DB.rows.filter(r => r.event === e && RACE_SESSIONS.includes(r.session) && r.bestLap !== null);
+    if (rd.length) {
+      const best = rd.reduce((a, b) => (b.bestLap < a.bestLap ? b : a));
+      if (best.pilot === name) fastestLaps++;
+    }
+  });
+
+  // qualifying: deepest stage reached, best qualy position
+  const deepest = QUAL_SESSIONS.filter(s => quals.some(q => q.session === s)).pop() || null;
+  const q4 = quals.filter(q => q.session === "Q4" && q.position !== null).map(q => q.position);
+
+  const totalPts = scored.reduce((a, r) => a + (r.points !== null ? r.points : (r.position && PTS_S3[r.position] ? PTS_S3[r.position] : 0)), 0);
+
+  return {
+    pilot: name, team: (rows[0] || {}).team || "—",
+    sessions: rows.length, races: races.length, quals: quals.length,
+    wins: finals.filter(r => r.position === 1).length,
+    podiums: finals.filter(r => r.position !== null && r.position <= 3).length,
+    bestFinish: finishPositions.length ? Math.min(...finishPositions) : null,
+    avgFinish: finishPositions.length ? finishPositions.reduce((a, b) => a + b, 0) / finishPositions.length : null,
+    bestLap: laps.length ? Math.min(...laps) : null,
+    consistency, stdev, netGain, gainSamples: gainRows.length,
+    purples, fastestLaps, deepestQ: deepest,
+    bestQ4: q4.length ? Math.min(...q4) : null,
+    points: totalPts,
+    rows
+  };
+}
+
+function allStats() { return pilots().map(p => pilotStats(p.pilot)); }
+
+function save() {
+  try { localStorage.setItem("e1scout", JSON.stringify(DB)); } catch (e) {}
+}
+function load() {
+  try {
+    const raw = localStorage.getItem("e1scout");
+    if (raw) { const d = JSON.parse(raw); if (d && Array.isArray(d.rows)) DB = d; }
+  } catch (e) {}
+}
+
+/* ==========================================================================
+   4. RENDER
+   ========================================================================== */
+
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const RATE_LABEL = { strength:"Strength", risk:"Risk", weakness:"Weakness", neutral:"Unverified", purple:"Purple" };
+const hasData = () => DB.rows.length > 0;
+
+function emptyState(what) {
+  return `
+  <div class="empty">
+    <span class="eyebrow">No timing data yet</span>
+    <h3>${esc(what)} needs your results data</h3>
+    <p>Everything on this page computes from a results table &mdash; positions, lap times, sectors. Paste yours from Smartsheet and this fills in immediately. The Intel and Format sections work without it.</p>
+    <div class="btnrow">
+      <button class="act" data-nav="import">Paste results data</button>
+      <button class="ghost" data-nav="intel">Go to scouting intel</button>
+    </div>
+  </div>`;
+}
+
+/* ---- Paddock ---- */
+function viewPaddock() {
+  const intelCount = INTEL.length;
+  const dataBlock = hasData() ? (() => {
+    const st = allStats().sort((a, b) => b.points - a.points);
+    const max = Math.max(...st.map(s => s.points), 1);
+    const hues = ["--s1","--s2","--s3","--s4","--s5","--s6"];
+    return `
+      <div class="chart card">
+        <h3>Championship points by pilot</h3>
+        <p class="note" style="margin:5px 0 16px">Computed from your data. Points come from Final 2 and Place Race results using the Season 3 table.</p>
+        <div class="bars">
+          ${st.slice(0, 12).map((s, i) => `
+            <div class="bar-row">
+              <span class="lbl">${esc(s.pilot)}</span>
+              <div class="bar-track"><div class="bar-fill" style="width:${(s.points / max * 100).toFixed(1)}%; background:var(${hues[i % hues.length]})"><span class="val">${s.points}</span></div></div>
+            </div>`).join("")}
         </div>
-      </div>
-    </div>`).join("");
-
-  const scen = SCENARIOS.map(sc => `
-    <div class="card">
-      <h3>${esc(sc.name)}</h3>
-      <p class="note" style="margin:6px 0 14px">${esc(sc.gist)}</p>
-      <div class="tw">
-        <table>
-          <thead><tr><th>Team</th><th>Lagos</th><th>Miami</th><th>Total</th></tr></thead>
-          <tbody>
-            ${sc.rows.slice().sort((a, b) => b.total - a.total).map(r => `
-              <tr${r.win ? ' style="background:var(--accent-wash)"' : ""}>
-                <td><strong>${esc(r.team)}</strong>${r.note ? ` <span class="note">${esc(r.note)}</span>` : ""}</td>
-                <td class="n">${esc(r.lagos)}</td>
-                <td class="n">${esc(r.miami)}</td>
-                <td class="n"><strong>${r.total}</strong></td>
-              </tr>`).join("")}
-          </tbody>
-        </table>
-      </div>
-    </div>`).join("");
+      </div>`;
+  })() : emptyState("The season overview");
 
   return `
   <div class="view">
     <header>
-      <span class="eyebrow">Season</span>
-      <h2>Where the championship stood</h2>
-      <p class="lede">Team-level standings going into the Lagos and Miami rounds of 2025, as modelled in Tara&rsquo;s podium-chances sheet. These six are the teams she treated as mathematically live &mdash; not the full grid.</p>
+      <span class="eyebrow">Paddock</span>
+      <h2>The field, from a Drogba seat</h2>
+      <p class="lede">A scouting tool for the 2026 Season 3 format &mdash; ten teams, two pilots each, four qualifying rounds and five race-day sessions. Load your results and every page below fills with measured numbers; the intel and format pages work regardless.</p>
     </header>
-
     <div class="stack">
       <div class="grid3">
-        <div class="tile"><span class="k eyebrow">Leader</span><span class="v">${leader.pts}</span><span class="n">${esc(leader.full)} &mdash; ${leader.pts - STANDINGS[1].pts} point clear of ${esc(STANDINGS[1].full)}</span></div>
-        <div class="tile"><span class="k eyebrow">Westbrook</span><span class="v">${wstb.pts}</span><span class="n">5th of six modelled, ${leader.pts - wstb.pts} points off the lead with two rounds left</span></div>
-        <div class="tile"><span class="k eyebrow">Spread, 1st to 4th</span><span class="v">${leader.pts - STANDINGS[3].pts}</span><span class="n">Less than a single race win separates the top four</span></div>
+        <div class="tile"><span class="k eyebrow">Rivals profiled</span><span class="v">${intelCount}</span><span class="n">From team debriefs and race video &mdash; each claim carries its source</span></div>
+        <div class="tile"><span class="k eyebrow">Sessions loaded</span><span class="v">${DB.rows.length}</span><span class="n">${hasData() ? `${events().length} event(s), ${pilots().length} pilots` : "Paste results to begin"}</span></div>
+        <div class="tile"><span class="k eyebrow">Points to win</span><span class="v">38</span><span class="n">Final 2, first past the post. Plus 3 for top qualifier and 1 for fastest standard lap</span></div>
       </div>
-
-      <div class="chart">
-        <div class="ttl">Championship points before Lagos &amp; Miami</div>
-        <div class="cap">Six teams modelled as mathematically live. Source: E1 2025 podium chances.</div>
-        <div class="bars">${bars}</div>
-      </div>
-
+      ${dataBlock}
       <div class="callout">
-        <span class="eyebrow">The finding</span>
-        <h3>Westbrook&rsquo;s title path needed rivals to collapse, not just a double win</h3>
-        <p>All three modelled scenarios put Westbrook on 165 points &mdash; the maximum available from two wins plus eight bonus points. Only one of them wins the championship, and it requires every rival to finish 6th or worse at Lagos and 8th or 9th at Miami. In the baseline case, a Westbrook double win still loses to Aoki on 156.</p>
-      </div>
-
-      <div class="grid2">${scen}</div>
-
-      <div class="grid2">
-        <div class="card">
-          <h3>Points per finishing position</h3>
-          <div class="tw" style="margin-top:12px">
-            <table>
-              <thead><tr><th>Position</th><th>Points</th></tr></thead>
-              <tbody>${POINTS.map(p => `<tr><td class="n">${p.pos}</td><td class="n"><strong>${p.pts}</strong></td></tr>`).join("")}</tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Bonus points</h3>
-          <div class="tw" style="margin-top:12px">
-            <table>
-              <thead><tr><th>Awarded for</th><th>Points</th></tr></thead>
-              <tbody>${BONUS.map(b => `<tr><td>${esc(b.what)}</td><td class="n"><strong>${esc(b.pts)}</strong></td></tr>`).join("")}</tbody>
-            </table>
-            <p class="note" style="padding:10px 14px">A maximum of 8 bonus points across a weekend, per the Westbrook column in the podium-chances sheet.</p>
-          </div>
-        </div>
+        <span class="eyebrow">Where the points actually are</span>
+        <h3>Only two races on the whole card pay championship points</h3>
+        <p><strong>Final 2</strong> and the <strong>Place Race</strong>. Final 1 pays nothing &mdash; it exists only to set the lane order for Final 2. That makes Final 1 a free reconnaissance run: you can learn a rival&rsquo;s boost pattern and corner lines at zero championship cost, and the lane you take out of it is worth more than the position. Add the qualifying extras &mdash; 3, 2, 1 for the Q4 top three &mdash; and up to 42 points are live in a weekend for a team that wins Q4 and Final 2 and takes fastest lap.</p>
       </div>
     </div>
   </div>`;
@@ -905,363 +587,613 @@ function viewSeason() {
 
 /* ---- Pilots ---- */
 function viewPilots() {
-  const cards = PILOTS.map(p => `
-    <button class="pilot-card" data-pilot="${p.id}">
-      <span class="tm">${esc(p.tag)}${p.teamLevel ? " · team-level" : ""}</span>
-      <span class="nm">${esc(p.name)}</span>
-      <span class="st">${esc(p.style)}</span>
-      <span class="go">Open dossier &rarr;</span>
-    </button>`).join("");
+  const withData = hasData();
+  const cards = withData
+    ? allStats().sort((a, b) => b.points - a.points).map(s => {
+        const intel = INTEL.find(i => i.name.toLowerCase() === s.pilot.toLowerCase() || i.team.toLowerCase() === s.team.toLowerCase());
+        const mine = (s.team || "").toLowerCase().includes(MY_TEAM.toLowerCase());
+        return `
+        <button class="pilot-card${mine ? " mine" : ""}" data-pilot="${esc(s.pilot)}">
+          <span class="tm">${esc(s.team)}${mine ? " · your team" : ""}</span>
+          <span class="nm">${esc(s.pilot)}</span>
+          <span class="st">${s.points} pts · ${s.races} races · best finish ${s.bestFinish ?? "—"}${s.fastestLaps ? ` · ${s.fastestLaps} fastest lap${s.fastestLaps > 1 ? "s" : ""}` : ""}</span>
+          ${intel ? `<span class="chip">Intel on file</span>` : ""}
+        </button>`;
+      }).join("")
+    : INTEL.map(i => `
+        <button class="pilot-card" data-intel="${i.id}">
+          <span class="tm">${esc(i.team)}</span>
+          <span class="nm">${esc(i.name)}</span>
+          <span class="st">${esc(i.headline)}</span>
+          <span class="chip">Qualitative only</span>
+        </button>`).join("");
 
   return `
   <div class="view">
     <header>
       <span class="eyebrow">Roster</span>
-      <h2>Pilot dossiers</h2>
-      <p class="lede">Five subjects appear in the archive with enough substance to profile. Sara, Lucas and Timmy are assessed as individual pilots; Brady and Blue Rising are recorded at team level, because that is how the source documents discuss them.</p>
+      <h2>Pilots</h2>
+      <p class="lede">${withData
+        ? "Every pilot in your loaded data, ranked on championship points. Open one for their full record — results, qualifying, pace, consistency and racecraft."
+        : "Without timing data this shows the five rivals the archive supports a profile on. Load results and this becomes the full grid with measured records."}</p>
     </header>
     <div class="roster">${cards}</div>
-    <p class="note" style="margin-top:20px">Every rating below is an assessment drawn from Team Westbrook&rsquo;s own debriefs and video analysis &mdash; not official timing data. Each one carries the sentence it came from.</p>
   </div>`;
 }
 
-function viewPilotDetail(id) {
-  const p = PILOTS.find(x => x.id === id);
-  if (!p) return viewPilots();
+function viewPilotDetail(name) {
+  const s = pilotStats(name);
+  const intel = INTEL.find(i => i.name.toLowerCase() === name.toLowerCase() || i.team.toLowerCase() === (s.team || "").toLowerCase());
 
-  const traits = p.traits.map(t => `
-    <div class="trait">
-      <div class="hd">
-        <h4>${esc(t.area)}</h4>
-        <span class="rate ${t.rate}">${RATE_LABEL[t.rate]}</span>
-      </div>
-      <blockquote class="quote">${t.quote}<cite>${esc(t.src)}</cite></blockquote>
-    </div>`).join("");
-
-  const measured = p.measured ? `
-    <div class="card">
-      <h3>Measured</h3>
-      <p class="note" style="margin:6px 0 12px">Recorded values, not assessment.</p>
-      <div class="tw">
-        <table><tbody>
-          ${p.measured.map(m => `<tr><td>${esc(m.k)}</td><td class="n"><strong>${esc(m.v)}</strong></td></tr>`).join("")}
-        </tbody></table>
-      </div>
-    </div>` : "";
-
-  const fixes = p.fixes.length ? `
-    <div class="card">
-      <h3>Prescribed adjustments</h3>
-      <p class="note" style="margin:6px 0 12px">Actions the team assigned to this pilot.</p>
-      <ol style="margin:0; padding-left:20px; color:var(--ink-2); font-size:14px; line-height:1.65">
-        ${p.fixes.map(f => `<li style="margin-bottom:7px">${f}</li>`).join("")}
-      </ol>
-    </div>` : "";
-
-  const counts = ["strength", "risk", "weakness"].map(r => ({ r, n: p.traits.filter(t => t.rate === r).length })).filter(x => x.n);
+  const sessRows = s.rows.map(r => `
+    <tr>
+      <td>${esc(r.event)}</td>
+      <td><span class="chip">${esc(r.session)}</span></td>
+      <td class="n">${r.lane ?? "—"}</td>
+      <td class="n">${r.position ?? "—"}</td>
+      <td class="n">${fmtTime(r.bestLap)}</td>
+      <td class="n">${fmtTime(r.s1)}</td>
+      <td class="n">${fmtTime(r.s2)}</td>
+      <td class="n">${fmtTime(r.s3)}</td>
+      <td class="note">${esc(r.notes)}</td>
+    </tr>`).join("");
 
   return `
   <div class="view">
     <button class="backlink" data-nav="pilots">&larr; All pilots</button>
     <header>
-      <span class="eyebrow">${esc(p.team)}${p.teamLevel ? " · assessed at team level" : ""}</span>
-      <h2>${esc(p.name)}</h2>
-      <p class="lede">${esc(p.summary)}</p>
-      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:14px">
-        ${counts.map(c => `<span class="rate ${c.r}">${c.n} ${RATE_LABEL[c.r].toLowerCase()}${c.n > 1 ? (c.r === "weakness" ? "es" : "s") : ""}</span>`).join("")}
-      </div>
+      <span class="eyebrow">${esc(s.team)}</span>
+      <h2>${esc(name)}</h2>
+      ${intel ? `<p class="lede">${esc(intel.headline)}</p>` : ""}
     </header>
-
     <div class="stack">
-      <div class="card">
-        <span class="eyebrow">Driving signature</span>
-        <h3 style="margin:6px 0 4px">${esc(p.style)}</h3>
-        <p class="note">${esc(p.visual)}</p>
+      <div class="grid3">
+        <div class="tile"><span class="k eyebrow">Points</span><span class="v">${s.points}</span><span class="n">${s.wins} win${s.wins === 1 ? "" : "s"}, ${s.podiums} podium${s.podiums === 1 ? "" : "s"} in Final 2</span></div>
+        <div class="tile"><span class="k eyebrow">Best lap</span><span class="v">${fmtTime(s.bestLap)}</span><span class="n">${s.fastestLaps} fastest standard lap${s.fastestLaps === 1 ? "" : "s"} on race day</span></div>
+        <div class="tile"><span class="k eyebrow">Purple sectors</span><span class="v">${s.purples}</span><span class="n">Outright fastest sector across all loaded events</span></div>
+        <div class="tile"><span class="k eyebrow">Consistency</span><span class="v">${s.consistency !== null ? "+" + s.consistency.toFixed(3) : "—"}</span><span class="n">Median lap minus best lap. Lower is more repeatable${s.stdev !== null ? ` · σ ${s.stdev.toFixed(3)}s` : ""}</span></div>
+        <div class="tile"><span class="k eyebrow">Racecraft</span><span class="v">${s.netGain !== null ? (s.netGain > 0 ? "+" : "") + s.netGain : "—"}</span><span class="n">Net positions gained against starting lane, over ${s.gainSamples} race${s.gainSamples === 1 ? "" : "s"}</span></div>
+        <div class="tile"><span class="k eyebrow">Qualifying</span><span class="v">${s.deepestQ ?? "—"}</span><span class="n">Deepest stage reached${s.bestQ4 ? ` · best Q4 position P${s.bestQ4}` : ""}</span></div>
       </div>
 
+      ${intel ? `
+      <div class="card">
+        <h3 style="margin-bottom:6px">Scouting notes</h3>
+        <p class="note" style="margin-bottom:8px">From the document archive. Each line is the source&rsquo;s own wording.</p>
+        ${intel.traits.map(t => `
+          <div class="trait">
+            <div class="hd"><h4>${esc(t.area)}</h4><span class="rate ${t.rate}">${RATE_LABEL[t.rate]}</span></div>
+            <blockquote class="quote">${t.quote}<cite>${esc(t.src)}</cite></blockquote>
+          </div>`).join("")}
+      </div>
+      <div class="callout">
+        <span class="eyebrow">How to race them</span>
+        <h3>Counter</h3>
+        <p>${intel.counter}</p>
+      </div>` : ""}
+
+      <div class="card">
+        <h3 style="margin-bottom:12px">Session log</h3>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Event</th><th>Session</th><th class="n">Lane</th><th class="n">Pos</th><th class="n">Best lap</th><th class="n">S1</th><th class="n">S2</th><th class="n">S3</th><th>Notes</th></tr></thead>
+            <tbody>${sessRows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function viewIntelDetail(id) {
+  const i = INTEL.find(x => x.id === id);
+  if (!i) return viewIntel();
+  return `
+  <div class="view">
+    <button class="backlink" data-nav="intel">&larr; All intel</button>
+    <header>
+      <span class="eyebrow">${esc(i.team)} · threat ${esc(i.threat)}</span>
+      <h2>${esc(i.name)}</h2>
+      <p class="lede">${esc(i.headline)}</p>
+    </header>
+    <div class="stack">
+      ${i.measured ? `
+      <div class="card">
+        <h3>Measured</h3>
+        <p class="note" style="margin:6px 0 12px">Recorded values, not assessment.</p>
+        <div class="tw"><table><tbody>${i.measured.map(m => `<tr><td>${esc(m.k)}</td><td class="n"><strong>${esc(m.v)}</strong></td></tr>`).join("")}</tbody></table></div>
+      </div>` : ""}
       <div class="card">
         <h3 style="margin-bottom:6px">Assessment</h3>
-        <p class="note" style="margin-bottom:8px">Each line is the team&rsquo;s own wording.</p>
-        ${traits}
+        <p class="note" style="margin-bottom:8px">Each line is the source document&rsquo;s own wording.</p>
+        ${i.traits.map(t => `
+          <div class="trait">
+            <div class="hd"><h4>${esc(t.area)}</h4><span class="rate ${t.rate}">${RATE_LABEL[t.rate]}</span></div>
+            <blockquote class="quote">${t.quote}<cite>${esc(t.src)}</cite></blockquote>
+          </div>`).join("")}
       </div>
-
-      ${measured}
-      ${fixes}
+      <div class="callout">
+        <span class="eyebrow">How to race them</span>
+        <h3>Counter</h3>
+        <p>${i.counter}</p>
+      </div>
     </div>
   </div>`;
 }
 
-/* ---- Discipline board ---- */
-function viewBest() {
-  const boards = DISCIPLINES.map(d => `
-    <div class="disc">
-      <h3>${esc(d.q)}</h3>
-      <p class="q">${esc(d.note)}</p>
-      ${d.ranks.map((r, i) => `
-        <div class="rank${i === 0 ? " lead" : ""}">
-          <span class="pos">${i + 1}</span>
-          <div class="body">
-            <div class="who">${esc(r.who)}<span class="team">${esc(r.team)}</span></div>
-            <div class="ev">${esc(r.ev)}</div>
+/* ---- Qualifying ---- */
+function viewQualifying() {
+  const data = hasData() ? (() => {
+    const evs = events();
+    return evs.map(e => {
+      const rows = DB.rows.filter(r => r.event === e && QUAL_SESSIONS.includes(r.session));
+      if (!rows.length) return "";
+      const byStage = QUAL_SESSIONS.map(q => {
+        const rs = rows.filter(r => r.session === q).sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
+        if (!rs.length) return "";
+        const best = rs.filter(r => r.bestLap !== null).map(r => r.bestLap);
+        const pole = best.length ? Math.min(...best) : null;
+        return `
+        <div class="card">
+          <h3>${esc(e)} &mdash; ${q}</h3>
+          <div class="tw" style="margin-top:12px">
+            <table>
+              <thead><tr><th class="n">Pos</th><th>Pilot</th><th>Team</th><th class="n">Best lap</th><th class="n">Gap</th></tr></thead>
+              <tbody>${rs.map(r => `
+                <tr${(r.team || "").toLowerCase().includes(MY_TEAM.toLowerCase()) ? ' class="me"' : ""}>
+                  <td class="n">${r.position ?? "—"}</td>
+                  <td><strong>${esc(r.pilot)}</strong></td>
+                  <td>${esc(r.team)}</td>
+                  <td class="n">${fmtTime(r.bestLap)}</td>
+                  <td class="n">${r.bestLap !== null && pole !== null ? (r.bestLap === pole ? "—" : fmtGap(r.bestLap - pole)) : "—"}</td>
+                </tr>`).join("")}</tbody>
+            </table>
           </div>
-        </div>`).join("")}
-      ${d.caveat ? `<p class="note" style="margin-top:12px; padding-top:11px; border-top:1px solid var(--rule-soft)">${esc(d.caveat)}</p>` : ""}
-    </div>`).join("");
+        </div>`;
+      }).join("");
+      return byStage;
+    }).join("");
+  })() : emptyState("Qualifying analysis");
 
   return `
   <div class="view">
     <header>
-      <span class="eyebrow">Comparison</span>
-      <h2>Who is best at what</h2>
-      <p class="lede">Six disciplines the archive supports an opinion on. Rankings are ordinal &mdash; the documents establish who is better than whom, not by how much. Where only one subject is assessed, that is stated rather than padded out.</p>
+      <span class="eyebrow">Race day &minus;1</span>
+      <h2>Qualifying</h2>
+      <p class="lede">Four stages, two eliminations each after Q1. Q4 sets the race-day seeding and pays 3, 2 and 1 points to its top three.</p>
     </header>
     <div class="stack">
-      ${boards}
+      <div class="card">
+        <h3 style="margin-bottom:14px">The elimination ladder</h3>
+        <div class="flow">
+          ${QUALI.map(q => `
+            <div class="stage">
+              <span class="sn">${q.s}</span>
+              <div class="sb">
+                <h4>${esc(q.who)}</h4>
+                <p>${q.detail}</p>
+                <span class="cut">${esc(q.cut)}</span>
+              </div>
+            </div>`).join("")}
+        </div>
+      </div>
       <div class="callout">
-        <span class="eyebrow">Read this together</span>
-        <h3>Sara and Lucas are near-perfect opposites</h3>
-        <p>Sara wins every straight-line and trim-precision comparison; Lucas wins every corner and defence comparison. Neither profile is a version of the other with more or less talent &mdash; they fail in opposite directions, which is why the same propeller and lift package cannot be optimal for both. Prop 15 at Miami is the cleanest example: it cost Sara ride height and average speed, while the same small-prop philosophy at Jeddah suited a corner-boosting style.</p>
+        <span class="eyebrow">The tactical consequence</span>
+        <h3>Q1 is a team average &mdash; every later stage is a single pilot</h3>
+        <p>Q1 ranks you on the <strong>average of both pilots&rsquo; best laps</strong>, so a weak second pilot eliminates a strong first one before the format ever tests them individually. From Q2 onward only one declared pilot runs, and the rotation rule forces you to alternate for every subsequent session &mdash; a cancelled session still burns that pilot&rsquo;s turn. So your Q2 declaration is really a bet on who you want available in Q4, two stages later.</p>
+      </div>
+      ${data}
+    </div>
+  </div>`;
+}
+
+/* ---- Pace & purple ---- */
+function viewPace() {
+  if (!hasData()) {
+    return `
+    <div class="view">
+      <header>
+        <span class="eyebrow">Speed</span>
+        <h2>Pace, purple sectors &amp; consistency</h2>
+        <p class="lede">Outright pace, sector-by-sector strength, and how repeatable each pilot is lap to lap.</p>
+      </header>
+      <div class="stack">
+        <div class="callout">
+          <span class="eyebrow">Worth knowing before you build this</span>
+          <h3>E1 pays for the fastest standard lap &mdash; not for sectors</h3>
+          <p>The Season 3 sporting format awards <strong>1 point for the fastest standard lap on race day</strong>, and nothing for sectors. Purple sectors are still the sharper diagnostic &mdash; they tell you <em>where</em> on the circuit a rival takes their time, which a single lap time hides &mdash; but no championship points ride on them. The format also voids the fastest-lap point entirely if a misplaced or drifting mark interrupted the racing line in any session, so check for that before you count it.</p>
+        </div>
+        ${emptyState("Pace analysis")}
+      </div>
+    </div>`;
+  }
+
+  const st = allStats().filter(s => s.bestLap !== null).sort((a, b) => a.bestLap - b.bestLap);
+  const fastest = st.length ? st[0].bestLap : null;
+  const consist = allStats().filter(s => s.consistency !== null).sort((a, b) => a.consistency - b.consistency);
+
+  const purpleTables = events().map(e => {
+    const p = purpleHolders(e);
+    return `
+    <div class="card">
+      <h3>${esc(e)} &mdash; purple holders</h3>
+      <div class="tw" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Segment</th><th>Pilot</th><th>Team</th><th class="n">Time</th><th>Set in</th></tr></thead>
+          <tbody>
+            ${["s1","s2","s3","bestLap"].map(k => {
+              const h = p[k];
+              const lbl = k === "bestLap" ? "Full lap" : "Sector " + k[1];
+              if (!h) return `<tr><td>${lbl}</td><td colspan="4" class="note">no data</td></tr>`;
+              return `<tr${(h.team||"").toLowerCase().includes(MY_TEAM.toLowerCase()) ? ' class="me"' : ""}>
+                <td><span class="rate purple">${lbl}</span></td>
+                <td><strong>${esc(h.pilot)}</strong></td><td>${esc(h.team)}</td>
+                <td class="n">${fmtTime(h.t)}</td><td><span class="chip">${esc(h.session)}</span></td></tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+        <p class="note" style="padding:10px 14px">A theoretical best lap is the sum of the three purple sectors. If no single pilot holds all three, nobody has yet driven the lap the circuit allows.</p>
+      </div>
+    </div>`;
+  }).join("");
+
+  return `
+  <div class="view">
+    <header>
+      <span class="eyebrow">Speed</span>
+      <h2>Pace, purple sectors &amp; consistency</h2>
+      <p class="lede">Outright pace tells you who is fast. Sector splits tell you where. Consistency tells you whether they can do it twice &mdash; which, in a format with two non-consecutive qualifying attempts, is what actually decides the grid.</p>
+    </header>
+    <div class="stack">
+      <div class="card">
+        <h3>Outright pace</h3>
+        <p class="note" style="margin:5px 0 16px">Best lap set in any session. Gap is to the fastest pilot in the loaded data.</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th class="n">#</th><th>Pilot</th><th>Team</th><th class="n">Best lap</th><th class="n">Gap</th><th class="n">Fastest laps</th></tr></thead>
+            <tbody>${st.map((s, i) => `
+              <tr${(s.team||"").toLowerCase().includes(MY_TEAM.toLowerCase()) ? ' class="me"' : ""}>
+                <td class="n">${i + 1}</td><td><strong>${esc(s.pilot)}</strong></td><td>${esc(s.team)}</td>
+                <td class="n">${fmtTime(s.bestLap)}</td>
+                <td class="n">${i === 0 ? "—" : fmtGap(s.bestLap - fastest)}</td>
+                <td class="n">${s.fastestLaps}</td>
+              </tr>`).join("")}</tbody>
+          </table>
+        </div>
+      </div>
+
+      ${consist.length ? `
+      <div class="card">
+        <h3>Consistency</h3>
+        <p class="note" style="margin:5px 0 16px">Median lap minus best lap &mdash; how much a pilot gives away on a normal lap versus their peak. Lower is more repeatable. Standard deviation shown alongside.</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th class="n">#</th><th>Pilot</th><th>Team</th><th class="n">Median − best</th><th class="n">σ</th><th class="n">Laps</th></tr></thead>
+            <tbody>${consist.map((s, i) => `
+              <tr${(s.team||"").toLowerCase().includes(MY_TEAM.toLowerCase()) ? ' class="me"' : ""}>
+                <td class="n">${i + 1}</td><td><strong>${esc(s.pilot)}</strong></td><td>${esc(s.team)}</td>
+                <td class="n">+${s.consistency.toFixed(3)}</td>
+                <td class="n">${s.stdev.toFixed(3)}</td>
+                <td class="n">${s.rows.filter(r => r.bestLap !== null).length}</td>
+              </tr>`).join("")}</tbody>
+          </table>
+        </div>
+      </div>` : ""}
+
+      ${purpleTables}
+    </div>
+  </div>`;
+}
+
+/* ---- Racecraft ---- */
+function viewRacecraft() {
+  const data = hasData() ? (() => {
+    const st = allStats().filter(s => s.netGain !== null).sort((a, b) => b.netGain - a.netGain);
+    if (!st.length) return `<div class="card"><p class="note">Your data has no rows with both a starting lane and a finishing position, so positions gained cannot be computed. Add a <code>lane</code> column to unlock this.</p></div>`;
+    return `
+    <div class="card">
+      <h3>Positions gained against starting lane</h3>
+      <p class="note" style="margin:5px 0 16px">Lane minus finishing position, summed across every race. Positive means they make places; negative means they lose them. Lane order is mandated by seed, so this isolates racecraft from qualifying.</p>
+      <div class="tw">
+        <table>
+          <thead><tr><th class="n">#</th><th>Pilot</th><th>Team</th><th class="n">Net</th><th class="n">Races</th><th class="n">Avg finish</th></tr></thead>
+          <tbody>${st.map((s, i) => `
+            <tr${(s.team||"").toLowerCase().includes(MY_TEAM.toLowerCase()) ? ' class="me"' : ""}>
+              <td class="n">${i + 1}</td><td><strong>${esc(s.pilot)}</strong></td><td>${esc(s.team)}</td>
+              <td class="n"><strong>${s.netGain > 0 ? "+" : ""}${s.netGain}</strong></td>
+              <td class="n">${s.gainSamples}</td>
+              <td class="n">${s.avgFinish !== null ? s.avgFinish.toFixed(2) : "—"}</td>
+            </tr>`).join("")}</tbody>
+        </table>
+      </div>
+    </div>`;
+  })() : emptyState("Racecraft analysis");
+
+  return `
+  <div class="view">
+    <header>
+      <span class="eyebrow">Race day</span>
+      <h2>Racecraft</h2>
+      <p class="lede">How pilots actually race &mdash; what they do with the lane they are given, when they take the mandatory laps, and the documented failure modes worth watching for.</p>
+    </header>
+    <div class="stack">
+      <div class="card">
+        <h3 style="margin-bottom:14px">Race-day progression</h3>
+        <div class="flow">
+          ${RACEDAY.map(r => `
+            <div class="stage">
+              <span class="sn">${esc(r.s.split(" ")[0])}</span>
+              <div class="sb">
+                <h4>${esc(r.who)}</h4>
+                <p>${r.detail}</p>
+                <span class="cut">${esc(r.cut)}</span>
+              </div>
+            </div>`).join("")}
+        </div>
+      </div>
+
+      <div class="callout">
+        <span class="eyebrow">The mandatory laps</span>
+        <h3>One long lap, one short lap, neither on lap 1</h3>
+        <p>Blue Rising is the only rival with this measured: at Lagos they took the long lap on <strong>lap 2 of 6</strong> from second place, absorbing the roughly 12-second penalty while the pack was still bunched, and came out 3.6 seconds off the leader having been 7.9&ndash;9.3 seconds behind. Their short lap averaged about &minus;10 seconds &mdash; so the net cost of the pair is small and the <em>timing</em> is the whole decision.</p>
+      </div>
+
+      ${data}
+
+      <div class="card">
+        <h3 style="margin-bottom:6px">Field notes</h3>
+        <p class="note" style="margin-bottom:8px">Documented failure modes and techniques from the archive &mdash; useful both as things to watch for in rivals and things not to repeat.</p>
+        ${FIELD_NOTES.map(n => `
+          <div class="trait">
+            <div class="hd"><h4>${esc(n.t)}</h4></div>
+            <p style="color:var(--ink-2); font-size:13.5px">${n.d}</p>
+            <p class="note" style="margin-top:8px">${esc(n.src)}</p>
+          </div>`).join("")}
       </div>
     </div>
   </div>`;
 }
 
-/* ---- Circuits ---- */
-function viewCircuits() {
-  const TYPE_LABEL = { flat: "Flat water", tech: "Technical", rough: "Rough water" };
-  const cards = CIRCUITS.map(c => `
-    <div class="circuit">
-      <div class="hd">
-        <h3>${esc(c.name)}</h3>
-        <span class="yr">${esc(c.year)}</span>
-        ${c.type.map(t => `<span class="chip ${t}">${TYPE_LABEL[t]}</span>`).join(" ")}
-      </div>
-      <p class="note">${esc(c.character)}</p>
-      <dl class="kv">
-        <dt>Learned</dt><dd>${esc(c.learned)}</dd>
-        <dt>Setup</dt><dd>${esc(c.setup)}</dd>
-        <dt>Still open</dt><dd>${esc(c.open)}</dd>
-        <dt>Source</dt><dd class="note">${esc(c.src)}</dd>
-      </dl>
-    </div>`).join("");
-
+/* ---- Intel ---- */
+function viewIntel() {
   return `
   <div class="view">
     <header>
-      <span class="eyebrow">Venues</span>
-      <h2>Circuit by circuit</h2>
-      <p class="lede">Seven venues appear in the archive with usable analysis. The pattern that runs through all of them: course character dictates propeller and boost strategy, and the two recipes are close to mutually exclusive.</p>
+      <span class="eyebrow">Scouting</span>
+      <h2>Rival intel</h2>
+      <p class="lede">Five subjects the document archive supports a real profile on, each with the source sentence attached and a counter for how to race them. This works with or without timing data.</p>
     </header>
     <div class="stack">
-      <div class="callout">
-        <span class="eyebrow">The organising rule</span>
-        <h3>Two recipes, chosen off the course map</h3>
-        <p><strong>Miami pattern</strong> &mdash; long straights, big propeller, continuous boost. <strong>Jeddah pattern</strong> &mdash; chicanes and turns, small propeller, boost pulsed in the flat moments between buoys. Jeddah showed the small prop cost no meaningful straight-line speed, which is what makes the trade viable. Lake Como is undecided until the course map arrives.</p>
+      <div class="roster">
+        ${INTEL.map(i => `
+          <button class="pilot-card" data-intel="${i.id}">
+            <span class="tm">${esc(i.team)} · threat ${esc(i.threat)}</span>
+            <span class="nm">${esc(i.name)}</span>
+            <span class="st">${esc(i.headline)}</span>
+            <span class="chip">${i.traits.length} sourced note${i.traits.length === 1 ? "" : "s"}</span>
+          </button>`).join("")}
       </div>
-      ${cards}
+      <div class="card">
+        <h3>Boost &mdash; the shared constraint</h3>
+        <p class="note" style="margin:5px 0 12px">Every pilot on the grid races the same allowance. Knowing the numbers is what makes a rival&rsquo;s boost pattern readable.</p>
+        <div class="tw"><table><tbody>${BOOST_FACTS.map(b => `<tr><td style="width:32%">${esc(b.k)}</td><td>${esc(b.v)}</td></tr>`).join("")}</tbody></table></div>
+      </div>
+      <div class="callout">
+        <span class="eyebrow">Honest limits</span>
+        <h3>This intel comes from Westbrook&rsquo;s files, not from the whole paddock</h3>
+        <p>The source documents are Team Westbrook debriefs and race video from 2025&ndash;early 2026. That means Sara and Lucas are covered in far more depth than any genuine rival, Brady and Blue Rising are assessed at team rather than pilot level, and the remaining teams on a ten-boat grid are not covered at all. Treat the depth of a profile as a fact about the archive, not about the threat.</p>
+      </div>
     </div>
   </div>`;
 }
 
-/* ---- Setup ---- */
-function viewSetup() {
+/* ---- Format ---- */
+function viewFormat() {
   return `
   <div class="view">
     <header>
       <span class="eyebrow">Reference</span>
-      <h2>Setup &amp; systems</h2>
-      <p class="lede">The hardware knowledge behind the pilot assessments &mdash; propellers, lift, trim mapping &mdash; alongside the Racebird regulations from the UIM E1 official system document.</p>
+      <h2>Season 3 sporting format</h2>
+      <p class="lede">The 2026 ten-team format, as published on 3 March 2026. This is what the whole app is structured around.</p>
     </header>
-
     <div class="stack">
-      <div class="card">
-        <h3>Propellers</h3>
-        <p class="note" style="margin:6px 0 14px">Why the same package cannot be optimal for both Westbrook pilots.</p>
-        <div class="tw">
-          <table>
-            <thead><tr><th>Prop</th><th>Top speed</th><th>Corners</th><th>Trim</th><th>Used for</th></tr></thead>
-            <tbody>${PROPS.map(p => `<tr><td class="n"><strong>${esc(p.p)}</strong></td><td>${esc(p.top)}</td><td>${esc(p.corner)}</td><td>${esc(p.trim)}</td><td>${esc(p.use)}</td></tr>`).join("")}</tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="grid2">
-        ${LIFT.map(l => `
-          <div class="card">
-            <h3>${esc(l.s)}</h3>
-            <ul style="margin:12px 0 0; padding-left:19px; color:var(--ink-2); font-size:13.5px; line-height:1.6">
-              ${l.pts.map(x => `<li style="margin-bottom:7px">${esc(x)}</li>`).join("")}
-            </ul>
-          </div>`).join("")}
-      </div>
-
-      <div class="card">
-        <p class="note">Every lift force works together with a speed. The boat only holds a stable ride height when thrust power and lift force are even &mdash; so the ideal engine-to-prop distance matters: too high and the prop sucks air and loses power, too low and it carries drag you don&rsquo;t need.</p>
-      </div>
-
       <div class="grid2">
         <div class="card">
-          <h3>Dash trim vs real engine angle</h3>
-          <p class="note" style="margin:6px 0 12px">The dash reads inverted against the real leading-edge angle &mdash; the mapping every trim number in this dossier depends on.</p>
-          <div class="tw">
+          <h3>Championship points</h3>
+          <div class="tw" style="margin-top:12px">
             <table>
-              <thead><tr><th>Real engine trim</th><th>Dash number</th></tr></thead>
-              <tbody>${TRIM_MAP.map(t => `<tr><td class="n">${esc(t.real)}</td><td class="n">${esc(t.dash)}</td></tr>`).join("")}</tbody>
+              <thead><tr><th class="n">Position</th><th class="n">Points</th></tr></thead>
+              <tbody>${Object.entries(PTS_S3).map(([p, v]) => `<tr><td class="n">${p}</td><td class="n"><strong>${v}</strong></td></tr>`).join("")}</tbody>
             </table>
           </div>
         </div>
-
         <div class="card">
-          <h3>Boost regulations</h3>
-          <p class="note" style="margin:6px 0 12px">Season 2 flexible boost strategy, from the official system document.</p>
-          <div class="tw">
-            <table><tbody>${BOOST_RULES.map(b => `<tr><td style="width:34%">${esc(b.k)}</td><td>${esc(b.v)}</td></tr>`).join("")}</tbody></table>
+          <h3>Extra points</h3>
+          <div class="tw" style="margin-top:12px">
+            <table>
+              <thead><tr><th>Awarded for</th><th class="n">Points</th></tr></thead>
+              <tbody>${PTS_EXTRA.map(e => `<tr><td>${esc(e.w)}</td><td class="n"><strong>+${e.p}</strong></td></tr>`).join("")}</tbody>
+            </table>
           </div>
+          <p class="note" style="margin-top:12px">If Q4 is not held, the qualifying points go to the final result of the last completed stage.</p>
         </div>
       </div>
-
       <div class="card">
-        <h3>Speed zone &amp; target pitch</h3>
-        <p class="note" style="margin:6px 0 12px">The window both Westbrook pilots are coached against.</p>
-        <div class="tw">
-          <table>
-            <thead><tr><th>Speed zone</th><th>Target pitch (locked in)</th><th>Risk factors</th></tr></thead>
-            <tbody><tr><td class="n">85% – 99% capacity</td><td class="n">−0.2 to 0.1</td><td>Too high: blow-over risk and ventilation. Too low: diving risk and drag.</td></tr></tbody>
-          </table>
-          <p class="note" style="padding:10px 14px">The open question the team set itself: the exact speed at which the pilot should lock the boat down. Sara engages trim lock at roughly 70 kph &mdash; too early for Lucas and the boat drags, too late and it destabilises.</p>
-        </div>
+        <h3 style="margin-bottom:10px">Accompanying rules</h3>
+        <ul style="margin:0; padding-left:20px; color:var(--ink-2); font-size:14px; line-height:1.7">
+          ${RULES.map(r => `<li style="margin-bottom:9px">${r}</li>`).join("")}
+        </ul>
       </div>
-
       <div class="card">
-        <h3>Torque maps</h3>
-        <div class="tw" style="margin-top:12px">
-          <table>
-            <thead><tr><th>Rotary</th><th>Map</th><th>Detail</th></tr></thead>
-            <tbody>${TORQUE.map(t => `<tr><td class="n">${esc(t.pos)}</td><td><strong>${esc(t.d)}</strong></td><td>${esc(t.n)}</td></tr>`).join("")}</tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Operating limits</h3>
-        <p class="note" style="margin:6px 0 12px">Values outside these are reported to Seabird engineers immediately.</p>
-        <div class="tw">
-          <table>
-            <thead><tr><th>Parameter</th><th>Limit</th><th>Note</th></tr></thead>
-            <tbody>${LIMITS.map(l => `<tr><td>${esc(l.p)}</td><td class="n"><strong>${esc(l.l)}</strong></td><td class="note">${esc(l.n)}</td></tr>`).join("")}</tbody>
-          </table>
-        </div>
+        <h3>What changed for Season 3</h3>
+        <p class="note" style="margin:6px 0 12px">From the qualifying format clarification issued after Jeddah.</p>
+        <ul style="margin:0; padding-left:20px; color:var(--ink-2); font-size:14px; line-height:1.7">
+          <li style="margin-bottom:9px">Qualifying Time Trials renamed <strong>Q1</strong>, keeping the same structure with both pilots running.</li>
+          <li style="margin-bottom:9px">Timed lap attempts cut from three to <strong>two per pilot per session</strong>.</li>
+          <li style="margin-bottom:9px">Q1 session length reduced from 20 minutes to <strong>15 minutes</strong>.</li>
+          <li style="margin-bottom:9px">The aborted-lap option was <strong>removed entirely</strong> — across every qualifying stage.</li>
+          <li>The points table also changed from the 2025 nine-position scale to a ten-position scale: 2nd is now 30 rather than 31, 3rd 24 rather than 25.</li>
+        </ul>
       </div>
     </div>
   </div>`;
 }
 
-/* ---- Protocols ---- */
-function viewProtocols() {
+/* ---- Import ---- */
+function viewImport() {
   return `
   <div class="view">
     <header>
-      <span class="eyebrow">Race craft</span>
-      <h2>Standing protocols</h2>
-      <p class="lede">Four rules the team wrote down after specific failures. Each one names the incident it came from &mdash; which is what makes them worth keeping.</p>
+      <span class="eyebrow">Data</span>
+      <h2>Load your results</h2>
+      <p class="lede">I can&rsquo;t reach your Smartsheet link from here &mdash; <code>app.smartsheet.com</code> is blocked by this session&rsquo;s network policy, and the published view also refuses non-browser requests. So paste the data instead: select the cells in Smartsheet, copy, and paste below. It stays in your browser and survives reloads.</p>
     </header>
     <div class="stack">
-      ${PROTOCOLS.map((p, i) => `
-        <div class="card">
-          <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:9px">
-            <span class="eyebrow" style="color:var(--accent-ink)">Protocol ${i + 1}</span>
-          </div>
-          <h3>${esc(p.t)}</h3>
-          <p style="color:var(--ink-2); font-size:14px; margin-top:9px">${esc(p.p)}</p>
-          <p class="note" style="margin-top:11px; padding-top:10px; border-top:1px solid var(--rule-soft)">${esc(p.src)}</p>
-        </div>`).join("")}
+      <div class="card">
+        <h3 style="margin-bottom:10px">Paste results</h3>
+        <textarea id="paste" placeholder="Paste here — tab, comma or semicolon separated, with a header row.
+
+event	session	team	pilot	lane	position	bestLap	s1	s2	s3
+Monaco	Q1	Drogba	Tara	—	3	1:24.512	28.110	31.902	24.500
+Monaco	FINAL2	Drogba	Tara	4	2	1:23.980	27.980	31.744	24.256"></textarea>
+        <div class="btnrow">
+          <button class="act" id="doImport">Load data</button>
+          <button class="ghost" id="doTemplate">Copy template header</button>
+          ${hasData() ? `<button class="ghost" id="doClear">Clear loaded data</button>` : ""}
+        </div>
+        <p id="importMsg" class="note" style="margin-top:12px"></p>
+      </div>
+
+      <div class="card">
+        <h3>Columns</h3>
+        <p class="note" style="margin:6px 0 12px">Header names are matched loosely and case-insensitively &mdash; <code>Pos</code>, <code>Finish</code> and <code>Position</code> all work. Only four are required.</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Column</th><th>Required</th><th>What it holds</th><th>Also accepts</th></tr></thead>
+            <tbody>${SCHEMA.map(f => `
+              <tr>
+                <td><strong>${esc(f.col)}</strong></td>
+                <td>${f.req ? `<span class="rate strength">Yes</span>` : `<span class="rate neutral">Optional</span>`}</td>
+                <td>${esc(f.desc)}</td>
+                <td class="note">${esc(f.alias.filter(a => a !== f.col.toLowerCase()).join(", "))}</td>
+              </tr>`).join("")}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>One row per pilot per session</h3>
+        <p class="note" style="margin:6px 0 12px">That single shape drives every page. Sessions are recognised as Q1&ndash;Q4, GS1, GS2, RACEOFF, PLACE, FINAL1 and FINAL2 &mdash; spacing and case don&rsquo;t matter, and common variants like &ldquo;Group Stage 1&rdquo; or &ldquo;Race Off&rdquo; are handled.</p>
+        <ul style="margin:0; padding-left:20px; color:var(--ink-2); font-size:14px; line-height:1.7">
+          <li style="margin-bottom:8px">Lap and sector times accept <code>1:23.456</code>, <code>83.456</code> or <code>1:23,456</code>.</li>
+          <li style="margin-bottom:8px">Leave <code>points</code> out and they are derived from Final 2 and Place Race positions using the Season 3 table.</li>
+          <li style="margin-bottom:8px">Add <code>lane</code> and racecraft &mdash; positions gained against the mandated lane &mdash; unlocks automatically.</li>
+          <li>Add <code>s1</code>, <code>s2</code>, <code>s3</code> and purple-sector analysis unlocks.</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <span class="eyebrow">A better long-term route</span>
+        <h3>Connect the Smartsheet connector and this stops being manual</h3>
+        <p>There is an official Smartsheet connector in the Claude directory that isn&rsquo;t installed on your account yet. Connecting it would let me read the sheet through Smartsheet&rsquo;s authenticated API rather than the blocked web host &mdash; no export, no paste, and it stays current as you update it. Exporting to your Google Drive <code>E1 Series</code> folder or Dropbox <code>/E1</code> also works, since I can already read both.</p>
+      </div>
     </div>
   </div>`;
 }
 
 /* ---- Sources ---- */
 function viewSources() {
+  const SRC = [
+    { f: "260303_10 Teams — Written Sporting Format S3", w: "Drive · E1 regulations", d: "The whole format spine: Q1–Q4, group stages, race off, place race, finals, points, lane and protest rules" },
+    { f: "260303_Qualifying Format Clarification and Update", w: "Drive · E1 regulations", d: "Post-Jeddah changes: two timed laps, 15-minute Q1, aborted laps removed" },
+    { f: "Jeddah 2026: Testing Strategy & Pilot Analysis", w: "Drive · E1 Series / 2026", d: "Pilot profiles for Sara and Lucas, speed-zone trim targets, the Brady boost hypothesis" },
+    { f: "Team Report: Jeddah GP Technical Debrief", w: "Drive · 2026 / westbrook / Jeddah", d: "Start timing, Turn/Flat/Turn, prop 15 vs 16, boost depletion protocol" },
+    { f: "TBR strategies LONG LAPS", w: "Drive · E1 Series", d: "The only measured rival dataset — Blue Rising's long lap at Lagos" },
+    { f: "Youtube videos highlights", w: "Drive · E1 Series", d: "Timmy / Brazil overtaking analysis from Lagos group race 1" },
+    { f: "What to improve after Lake Maggiore", w: "Drive · E1 Series", d: "Monaco settings, the Brady boost question, open study items" },
+    { f: "Racebird System Operation v01", w: "Dropbox · /E1", d: "Boost regulations, torque maps, operating limits" },
+    { f: "PROPS · LIFT TIPS · Engine trim REAL", w: "Drive · E1 Series", d: "Propeller characteristics, lift 120 vs 180, dash-to-real trim mapping" }
+  ];
+  const GAPS = [
+    { t: "No timing data in the archive at all", d: "Not one lap time, sector split, qualifying result or finishing position exists in the Drive or Dropbox folders. Every measured page in this app is empty until you paste your own — which is precisely what the Smartsheet appears to hold." },
+    { t: "Sector times may not exist upstream", d: "The Season 3 sporting format never mentions sectors — only the fastest standard lap, worth one point. If E1 timing doesn't publish sector splits, purple-sector analysis will stay empty no matter what you load." },
+    { t: "Rival coverage is lopsided", d: "The archive is Westbrook's, so their own two pilots are documented far more thoroughly than any competitor. On a ten-team grid, five teams have no profile at all." },
+    { t: "The Brady boost claim is untested", d: "It is written as a hypothesis in the source and has never been checked against data. It is also the most valuable thing in the archive if you can confirm it." },
+    { t: "2025 points ≠ 2026 points", d: "The old podium-chances sheet used a nine-position scale (38/31/25/20/16/12/9/6/3). Season 3 uses ten positions (38/30/24/19/15/12/9/7/5/3). Any carried-over spreadsheet maths will be wrong." }
+  ];
   return `
   <div class="view">
     <header>
       <span class="eyebrow">Provenance</span>
-      <h2>Sources &amp; what&rsquo;s missing</h2>
-      <p class="lede">This dossier is built from nine documents across Google Drive and Dropbox. It is worth being precise about what they do and don&rsquo;t contain &mdash; the gaps are as useful as the findings.</p>
+      <h2>Sources &amp; limits</h2>
+      <p class="lede">Nine documents across Google Drive and Dropbox. What they don&rsquo;t contain bounds everything in this app, so it is listed just as plainly.</p>
     </header>
-
     <div class="stack">
       <div class="card">
         <h3>Documents used</h3>
         <div class="tw" style="margin-top:12px">
           <table>
             <thead><tr><th>File</th><th>Location</th><th>What it provided</th></tr></thead>
-            <tbody>${SOURCES.map(s => `<tr><td><strong>${esc(s.f)}</strong></td><td class="note">${esc(s.w)}</td><td>${esc(s.d)}</td></tr>`).join("")}</tbody>
+            <tbody>${SRC.map(s => `<tr><td><strong>${esc(s.f)}</strong></td><td class="note">${esc(s.w)}</td><td>${esc(s.d)}</td></tr>`).join("")}</tbody>
           </table>
         </div>
       </div>
-
       <div class="card">
-        <h3>What the archive does not have</h3>
-        <p class="note" style="margin:6px 0 4px">Stated plainly, because it bounds every ranking on this site.</p>
+        <h3 style="margin-bottom:6px">Limits</h3>
         ${GAPS.map(g => `
           <div class="trait">
             <div class="hd"><h4>${esc(g.t)}</h4></div>
             <p style="color:var(--ink-2); font-size:13.5px">${esc(g.d)}</p>
           </div>`).join("")}
       </div>
-
-      <div class="callout">
-        <span class="eyebrow">The one change worth making</span>
-        <h3>The capture schema already exists &mdash; it just has no rows</h3>
-        <p>&ldquo;Data collection&rdquo; defines exactly the right columns: date, location, race and turn number, turn type, condition, propeller, engine height and angle, dash trim, real leading-edge angle, speed into the turn, speed after the turn, wheel rotation speed, RPM, boost, heel angle. Populating it for one weekend across both pilots would convert every ordinal ranking here into a measured one, and would let the Brady boost hypothesis finally be tested rather than assumed.</p>
-      </div>
     </div>
   </div>`;
 }
 
 /* ==========================================================================
-   ROUTER
+   5. ROUTER
    ========================================================================== */
 
 const VIEWS = {
-  season:    { label: "Championship", tag: "2025", render: viewSeason },
-  pilots:    { label: "Pilots",       tag: "5",    render: viewPilots },
-  best:      { label: "Best at what", tag: "6",    render: viewBest },
-  circuits:  { label: "Circuits",     tag: "7",    render: viewCircuits },
-  setup:     { label: "Setup",        tag: "",     render: viewSetup },
-  protocols: { label: "Protocols",    tag: "4",    render: viewProtocols },
-  sources:   { label: "Sources",      tag: "",     render: viewSources }
+  paddock:   { label: "Paddock",    render: viewPaddock },
+  pilots:    { label: "Pilots",     render: viewPilots },
+  qualifying:{ label: "Qualifying", render: viewQualifying },
+  pace:      { label: "Pace & purple", render: viewPace },
+  racecraft: { label: "Racecraft",  render: viewRacecraft },
+  intel:     { label: "Rival intel", render: viewIntel },
+  format:    { label: "S3 format",  render: viewFormat },
+  import:    { label: "Load data",  render: viewImport },
+  sources:   { label: "Sources",    render: viewSources }
 };
 
 const NAV_GROUPS = [
-  { title: "Results", items: ["season", "pilots", "best"] },
-  { title: "Context", items: ["circuits", "setup", "protocols"] },
-  { title: "Method",  items: ["sources"] }
+  { title: "Performance", items: ["paddock", "pilots", "qualifying", "pace", "racecraft"] },
+  { title: "Scouting",    items: ["intel", "format"] },
+  { title: "Data",        items: ["import", "sources"] }
 ];
 
-let current = "season";
+let current = "paddock";
 
 function buildRail() {
-  const rail = document.getElementById("rail");
-  rail.innerHTML = NAV_GROUPS.map(g => `
+  document.getElementById("rail").innerHTML = NAV_GROUPS.map(g => `
     <div class="grp">
       <span class="eyebrow">${g.title}</span>
-      ${g.items.map(k => `<button data-nav="${k}">${VIEWS[k].label}${VIEWS[k].tag ? `<span class="tag">${VIEWS[k].tag}</span>` : ""}</button>`).join("")}
+      ${g.items.map(k => `<button data-nav="${k}">${VIEWS[k].label}${k === "intel" ? `<span class="tag">${INTEL.length}</span>` : ""}${k === "import" && hasData() ? `<span class="tag">${DB.rows.length}</span>` : ""}</button>`).join("")}
     </div>`).join("");
 }
 
-function go(key, pilotId) {
+function updateState() {
+  document.getElementById("dataState").textContent = hasData()
+    ? `${DB.rows.length} sessions · ${pilots().length} pilots · ${events().length} event(s)`
+    : "No timing data loaded";
+}
+
+function go(key, opts = {}) {
   const main = document.getElementById("main");
-  if (pilotId) {
-    main.innerHTML = viewPilotDetail(pilotId);
-    current = "pilots";
-  } else {
-    main.innerHTML = VIEWS[key].render();
-    current = key;
-  }
-  document.querySelectorAll("nav.rail button").forEach(b => {
-    b.setAttribute("aria-current", b.dataset.nav === current ? "true" : "false");
-  });
+  if (opts.pilot) { main.innerHTML = viewPilotDetail(opts.pilot); current = "pilots"; }
+  else if (opts.intel) { main.innerHTML = viewIntelDetail(opts.intel); current = "intel"; }
+  else { main.innerHTML = VIEWS[key].render(); current = key; }
+  document.querySelectorAll("nav.rail button").forEach(b => b.setAttribute("aria-current", b.dataset.nav === current ? "true" : "false"));
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
@@ -1269,9 +1201,43 @@ document.addEventListener("click", (e) => {
   const nav = e.target.closest("[data-nav]");
   if (nav) { go(nav.dataset.nav); return; }
   const pc = e.target.closest("[data-pilot]");
-  if (pc) { go("pilots", pc.dataset.pilot); }
+  if (pc) { go("pilots", { pilot: pc.dataset.pilot }); return; }
+  const ic = e.target.closest("[data-intel]");
+  if (ic) { go("intel", { intel: ic.dataset.intel }); return; }
+
+  if (e.target.id === "doImport") {
+    const msg = document.getElementById("importMsg");
+    try {
+      const rows = parsePaste(document.getElementById("paste").value);
+      DB = { rows, loadedAt: new Date().toISOString() };
+      save(); buildRail(); updateState();
+      msg.style.color = "var(--good)";
+      msg.textContent = `Loaded ${rows.length} sessions · ${pilots().length} pilots · ${events().length} event(s). Open Paddock, Pace or Racecraft to see it.`;
+    } catch (err) {
+      msg.style.color = "var(--crit)";
+      msg.textContent = err.message;
+    }
+    return;
+  }
+  if (e.target.id === "doTemplate") {
+    const header = SCHEMA.map(f => f.col).join("\t");
+    const ta = document.getElementById("paste");
+    ta.value = header + "\n";
+    ta.focus();
+    const msg = document.getElementById("importMsg");
+    msg.style.color = "var(--ink-muted)";
+    msg.textContent = "Template header inserted. Paste your rows beneath it, or match these names in Smartsheet and copy the whole block.";
+    return;
+  }
+  if (e.target.id === "doClear") {
+    DB = { rows: [], loadedAt: null };
+    save(); buildRail(); updateState(); go("import");
+    return;
+  }
 });
 
+load();
 buildRail();
-go("season");
+updateState();
+go("paddock");
 </script>
