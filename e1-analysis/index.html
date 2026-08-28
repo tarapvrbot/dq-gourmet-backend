@@ -1467,10 +1467,10 @@ function viewBoost() {
     return `
     <div class="card">
       <h3>Boost utilisation &amp; efficiency</h3>
-      <p class="note" style="margin:5px 0 16px">Standard laps only &mdash; lap 1, long laps and short laps are excluded, because they change lap duration and would corrupt the comparison. <strong>Util</strong> is boost used as a share of what the rules allowed in that lap. <strong>Headroom</strong> is the seconds left on the table. <strong>Δ vs boost</strong> is lap time against what this field&rsquo;s boost-to-laptime relationship predicts &mdash; negative means faster than their boost spend should buy.</p>
+      <p class="note" style="margin:5px 0 16px">Standard laps only &mdash; lap 1, long laps and short laps are excluded, because they change lap duration and would corrupt the comparison. <strong>Util</strong> is boost used as a share of what the rules allowed in that lap. <strong>Headroom</strong> is the seconds left on the table. <strong>Vs expected</strong> compares each pilot&rsquo;s lap time against what their boost spend should have bought at this event&rsquo;s exchange rate &mdash; negative is faster than predicted, positive is slower.</p>
       <div class="tw">
         <table>
-          <thead><tr><th class="n">#</th><th>Pilot</th><th>Team</th><th class="n">Util</th><th class="n">Boost/lap</th><th class="n">Headroom</th><th class="n">Δ vs boost</th><th class="n">0% hits</th><th class="n">Laps</th></tr></thead>
+          <thead><tr><th class="n">#</th><th>Pilot</th><th>Team</th><th class="n">Util</th><th class="n">Boost/lap</th><th class="n">Headroom</th><th class="n">Vs expected</th><th class="n">0% hits</th><th class="n">Laps</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
         ${st.slope !== null ? `<p class="note" style="padding:10px 14px">Across ${st.n} comparable laps, one extra second of boost is worth <strong>${Math.abs(st.slope).toFixed(3)}s</strong> of lap time ${st.slope < 0 ? "gained" : "<strong>lost</strong> — which means boost is not currently buying pace in this sample, so look at where it is being spent rather than how much"}.</p>` : `<p class="note" style="padding:10px 14px">Not enough comparable laps yet to fit the boost-to-laptime relationship — four or more standard laps are needed.</p>`}
@@ -1525,8 +1525,20 @@ function viewBoost() {
 
       <div class="callout">
         <span class="eyebrow">The second metric, and the more important one</span>
-        <h3>Utilisation is an input. Lap time is the output.</h3>
-        <p>Maxing utilisation is not the goal &mdash; a pilot at 100% U who is slow is simply wasting energy loudly. So the app also fits lap time against boost spent across every comparable lap, and reports each pilot&rsquo;s <strong>residual</strong>: are they faster or slower than their boost spend predicts? That is the number that separates skill from situation, and it is what actually tests the Brady hypothesis. If Brady really is running on/off, they will show <strong>moderate utilisation with a strongly negative residual</strong> &mdash; not spending the most, but getting the most from what they spend. A chasing boat shows the opposite: high utilisation, positive residual.</p>
+        <h3>Boost is what you spend. Lap time is what you get.</h3>
+        <p>Counting who spent the most boost tells you nothing about who <em>got</em> the most from it. So the app looks at every comparable lap in the event and works out the field&rsquo;s <strong>exchange rate</strong> &mdash; what a second of boost is typically worth on this course. Then it checks each pilot against that expectation. Spend 15 seconds where the field average laps 84.0, and lap 83.5, and you got half a second more than your spend should have bought. That gap is the number in the <strong>vs expected</strong> column: negative means faster than your boost spend predicts, positive means slower.</p>
+        <div class="tw" style="margin-top:14px; background:var(--surface)">
+          <table>
+            <thead><tr><th>Pilot</th><th class="n">Boost spent</th><th class="n">Expected lap</th><th class="n">Actual lap</th><th>What it says</th></tr></thead>
+            <tbody>
+              <tr><td><strong>A</strong></td><td class="n">15.0s</td><td class="n">84.0s</td><td class="n">84.0s</td><td>Exactly par for the spend</td></tr>
+              <tr><td><strong>B</strong></td><td class="n">15.0s</td><td class="n">84.0s</td><td class="n">83.5s</td><td><span class="rate strength">−0.5s</span> getting more from each second</td></tr>
+              <tr><td><strong>C</strong></td><td class="n">15.0s</td><td class="n">84.0s</td><td class="n">84.6s</td><td><span class="rate weakness">+0.6s</span> that boost is being wasted</td></tr>
+            </tbody>
+          </table>
+          <p class="note" style="padding:10px 14px">Same boost, three different returns &mdash; invisible if you only count total seconds.</p>
+        </div>
+        <p style="color:var(--ink-2); font-size:14px; margin-top:14px">This is what makes the on/off boost question answerable. A pilot running that strategy holds a reserve and is <em>still</em> quick: <strong>low use, negative gap</strong>. A pilot chasing shows the opposite &mdash; spending everything and gaining little. One caution: a leader in clean air genuinely has an easier job, so part of a negative gap is track position rather than craft. It beats raw totals by a long way; it is not a perfect separation.</p>
       </div>
 
       ${analysis}
@@ -1555,14 +1567,14 @@ function viewBoost() {
           <table>
             <thead><tr><th>Pattern</th><th>What it means</th><th>What to do</th></tr></thead>
             <tbody>
-              <tr><td><span class="rate weakness">Low U, positive residual</span></td><td>Genuinely underusing boost and slow with it</td><td>The clearest case for change — there is free lap time sitting unused</td></tr>
-              <tr><td><span class="rate strength">Low U, negative residual</span></td><td>Underusing boost and still fast</td><td>Do not "fix" this. It is Brady's pattern — find where the reserve is being deployed</td></tr>
-              <tr><td><span class="rate risk">High U, positive residual</span></td><td>Spending everything and getting little</td><td>Placement problem, not quantity. Look at boost applied in corners versus straights</td></tr>
-              <tr><td><span class="rate neutral">High U, negative residual</span></td><td>Maximal and fast</td><td>At the limit of the regulation. Gains now come from elsewhere</td></tr>
+              <tr><td><span class="rate weakness">Low use, positive</span></td><td>Genuinely underusing boost and slow with it</td><td>The clearest case for change — there is free lap time sitting unused</td></tr>
+              <tr><td><span class="rate strength">Low use, negative</span></td><td>Underusing boost and still fast</td><td>Do not "fix" this. It is Brady's pattern — find where the reserve is being deployed</td></tr>
+              <tr><td><span class="rate risk">High use, positive</span></td><td>Spending everything and getting little</td><td>Placement problem, not quantity. Look at boost applied in corners versus straights</td></tr>
+              <tr><td><span class="rate neutral">High use, negative</span></td><td>Maximal and fast</td><td>At the limit of the regulation. Gains now come from elsewhere</td></tr>
             </tbody>
           </table>
         </div>
-        <p class="note" style="margin-top:12px">One caution on causation: on a course where boost genuinely does not buy time &mdash; a tight technical layout &mdash; the fitted slope can come out flat or positive across the whole field. That is a fact about the circuit, not about any pilot. Read the residuals only relative to each other, and re-fit per event rather than pooling across venues.</p>
+        <p class="note" style="margin-top:12px">One caution on causation: on a course where boost genuinely does not buy time &mdash; a tight technical layout &mdash; the fitted slope can come out flat or positive across the whole field. That is a fact about the circuit, not about any pilot. Read these gaps only relative to each other, and work them out per event rather than pooling several venues together.</p>
       </div>
     </div>
   </div>`;
