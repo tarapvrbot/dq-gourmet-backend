@@ -216,6 +216,67 @@ const PTS_EXTRA = [
   { w: "Fastest standard lap on race day", p: 1 }
 ];
 
+/* --------------------------------------------------------------------------
+   COURSE GEOMETRY — buoy schemes, verbatim from the Race Instructions.
+   Lagos: "RIs 2025 Round 6 E1 Lagos GP". Jeddah: "RI Jeddah 2026".
+   Coordinates and inter-buoy distances live in Appendix 1A of each RI
+   (a diagram, so not machine-readable here).
+   -------------------------------------------------------------------------- */
+
+const COURSES = [
+  {
+    name: "Jeddah", year: "2026", round: "Round 1",
+    coords: "21° 44’ 38.3”N, 39° 07’ 50.0”E — Obhur Bay",
+    startGate: "T – T1",
+    laneGate: "A – Y",
+    firstMark: "L",
+    marks: [
+      { m: "T – T1", r: "Start / Finish Gate", k: "critical", n: "Cannot be missed. Jumping buoy T is a long-lap or time penalty; jumping T1 or any external safety buoy is disqualification for the session." },
+      { m: "A – Y", r: "Lane-release gate", k: "start", n: "Hold your lane and course from the start until past this gate. Only then do racing rules apply and you may head for the first mark." },
+      { m: "B", r: "Not in the start chute", k: "start", n: "During the starting phase B may be passed on either side, depending on your chosen trajectory toward L." },
+      { m: "L", r: "First mark", k: "turn", n: "The first mark of the race lap." },
+      { m: "L1 · L2 · L3", r: "Long lap route", k: "long", n: "The long-lap and penalty-lap buoys." },
+      { m: "E2 – Y4", r: "3-minute position limit", k: "start", n: "May not be passed until the yellow flag at 30 seconds." },
+      { m: "E – E2", r: "Red-flag restart gate", k: "restart", n: "Green flag is shown between E and E2; proceed single file at minimum 40 kph to T–T1." },
+      { m: "Y3 – 1", r: "Course entry from Milling", k: "entry", n: "Cross only when no boat lies between mark D and E2. In qualifying, crossing it means you have officially started your launch — no reversing back to Milling." },
+      { m: "M – 2", r: "Milling area line", k: "entry", n: "Do not exceed these buoys. Holding position without circling means staying behind the M–2 line." },
+      { m: "Y · Y1 · Y2", r: "Abort / exit route", k: "exit", n: "Aborted lap: Start Line → Y (starboard) → Y1 (port) → L → L1–L2–L3 → Y2 (port) → outside the course to Milling. Race exit: after T–T1 head for Y, clockwise around it, then Launch Area." }
+    ],
+    boostRule: "Variable boost may be activated at the start of each race only after crossing the start line."
+  },
+  {
+    name: "Lagos", year: "2025", round: "Round 6",
+    coords: "6° 26.300’N, 3° 26.390’E",
+    startGate: "T – T1",
+    laneGate: "T2 – Y",
+    firstMark: "A",
+    marks: [
+      { m: "T – T1", r: "Start / Finish Gate", k: "critical", n: "Cannot be missed. Jumping T is a long-lap or time penalty; jumping T1 or an external safety buoy is disqualification." },
+      { m: "T2 – Y", r: "Lane-release gate", k: "start", n: "Maintain lane and hold course until past this gate; then racing rules apply and you may proceed to the first mark." },
+      { m: "A", r: "First mark", k: "turn", n: "The first mark of the race lap." },
+      { m: "A1 · A2", r: "Abort route marks", k: "exit", n: "Aborted lap route: T – A – A1 – A2 – L – M (Milling). Continue past A2 to mark B and the lap counts as timed even if you called the abort on radio." },
+      { m: "L", r: "Long lap", k: "long", n: "Long-lap and penalty-lap route." },
+      { m: "D2 – Y1", r: "Course entry from Milling", k: "entry", n: "Cross only when no boat’s bow is abeam of mark B." },
+      { m: "D · D2", r: "Red-flag restart gate", k: "restart", n: "Green flag shown between D and D2; single file at minimum 40 kph to T–T1." },
+      { m: "M", r: "Milling position limit", k: "entry", n: "At 3 minutes the blue flag allows approach manoeuvres, but buoy M must not be passed." },
+      { m: "11", r: "Exit / exclusion", k: "exit", n: "After crossing the finish line, proceed to buoy 11, turn starboard leaving 11 to starboard, and return to the Launch Area." }
+    ],
+    boostRule: "Variable boost open from the starting yellow flag (30 seconds to green) — per the March 2026 written format."
+  }
+];
+
+const MARK_RULES = [
+  { t: "Missing a buoy", d: "One long-lap penalty per buoy missed — or a 30-second time penalty if it happens on the last lap (20 seconds under the 2025 Lagos instructions)." },
+  { t: "Touching or moving a buoy", d: "One long-lap penalty, or 30 seconds on the last lap. If you skip it and hit it, both penalties apply." },
+  { t: "Absent buoy during a race", d: "Take the turn on the missing buoy’s geographic coordinates. A virtual circle 20 metres in diameter is centred on each coordinate; passing inside it, or outside it in the correct direction, is valid. Wrong direction and outside the circle is a miss." },
+  { t: "Absent buoy and the fastest-lap point", d: "A lap run through the virtual circle still counts for the fastest-lap bonus. Pass the coordinate in the wrong direction and outside the circle and the lap is void for the bonus — and the time is struck from the bonus calculation entirely." },
+  { t: "Absent buoy in qualifying", d: "Red flag, all boats back to Milling, buoy replaced, then the session resumes from where it stopped. The replacement time is recovered inside the same session." },
+  { t: "Yellow flag", d: "Maximum 50 kph, no overtaking — but only in the sector the Race Director names, mark to mark, even when the whole course shows yellow on the dash." }
+];
+
+/* Boost constants, from Racebird System Operation v01 (UIM E1 official). */
+const BOOST = { allowance: 20, rechargeRatio: 2, cooldown: 5, depletionCost: 7 };
+
 const RULES = [
   "Every race carries <strong>one mandatory long lap and one mandatory short lap</strong>. Neither may be taken on lap 1 unless the race instructions say otherwise.",
   "Variable boost opens at the starting yellow flag &mdash; 30 seconds before green.",
@@ -519,6 +580,146 @@ function load() {
     if (raw) { const d = JSON.parse(raw); if (d && Array.isArray(d.rows)) DB = d; }
   } catch (e) {}
 }
+
+/* --------------------------------------------------------------------------
+   LAP-LEVEL BOOST ENGINE
+   One row per lap, measured start/finish line to start/finish line (T-T1).
+   -------------------------------------------------------------------------- */
+
+const LAP_SCHEMA = [
+  { col: "event",       req: true,  desc: "Round name",                              alias: ["event","round","gp","venue"] },
+  { col: "session",     req: true,  desc: "Q1..Q4 GS1 GS2 RACEOFF PLACE FINAL1 FINAL2", alias: ["session","stage","phase","heat","race"] },
+  { col: "pilot",       req: true,  desc: "Pilot name",                              alias: ["pilot","driver","name"] },
+  { col: "team",        req: false, desc: "Team name",                               alias: ["team","entrant"] },
+  { col: "lap",         req: true,  desc: "Lap number",                              alias: ["lap","lapno","lap number","lap n"] },
+  { col: "lapTime",     req: true,  desc: "Lap time, line to line",                  alias: ["laptime","lap time","time","t"] },
+  { col: "boostUsed",   req: true,  desc: "Boost seconds deployed in this lap",      alias: ["boostused","boost used","boost","boost s","boostseconds","boost seconds"] },
+  { col: "boostAtLine", req: false, desc: "Boost allowance remaining crossing the line", alias: ["boostatline","boost at line","boostremaining","boost remaining","allowance","booststart","boost start"] },
+  { col: "lapType",     req: false, desc: "standard / long / short",                 alias: ["laptype","lap type","type"] },
+  { col: "depleted",    req: false, desc: "Y if boost hit 0% this lap",              alias: ["depleted","zero","lockout","hitzero","hit zero"] }
+];
+
+let LAPS = { rows: [], loadedAt: null };
+
+function normLapType(v, lapNo) {
+  const t = String(v || "").toLowerCase().trim();
+  if (t.startsWith("l")) return "long";
+  if (t.startsWith("sh") || t === "s") return "short";
+  if (t.startsWith("st")) return "standard";
+  return lapNo === 1 ? "lap1" : "standard";
+}
+
+function parseLaps(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length);
+  if (lines.length < 2) throw new Error("Need a header row and at least one lap row.");
+  const tabs = (lines[0].match(/\t/g) || []).length;
+  const semis = (lines[0].match(/;/g) || []).length;
+  const commas = (lines[0].match(/,/g) || []).length;
+  const delim = tabs >= Math.max(commas, semis) ? "\t" : (semis > commas ? ";" : ",");
+  const split = (line) => {
+    if (delim !== ",") return line.split(delim).map(c => c.trim());
+    const out = []; let cur = "", q = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { if (q && line[i+1] === '"') { cur += '"'; i++; } else q = !q; }
+      else if (c === "," && !q) { out.push(cur.trim()); cur = ""; }
+      else cur += c;
+    }
+    out.push(cur.trim()); return out;
+  };
+  const head = split(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9 ]/g, "").trim());
+  const map = {};
+  LAP_SCHEMA.forEach(f => { const i = head.findIndex(h => f.alias.includes(h)); if (i >= 0) map[f.col] = i; });
+  const missing = LAP_SCHEMA.filter(f => f.req && map[f.col] === undefined).map(f => f.col);
+  if (missing.length) throw new Error("Missing required column(s): " + missing.join(", ") + ". Found: " + head.join(" | "));
+
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const c = split(lines[i]);
+    const get = k => map[k] !== undefined ? (c[map[k]] ?? "").trim() : "";
+    const pilot = get("pilot"); if (!pilot) continue;
+    const lapNo = parseInt(String(get("lap")).replace(/\D/g, ""), 10);
+    const T = parseTime(get("lapTime"));
+    const B = parseFloat(String(get("boostUsed")).replace(",", "."));
+    if (!isFinite(T) || !isFinite(B)) continue;
+    const a0raw = get("boostAtLine");
+    const A0 = a0raw === "" ? null : parseFloat(a0raw.replace(",", "."));
+    const dep = String(get("depleted")).toLowerCase();
+    rows.push({
+      event: get("event") || "—",
+      session: normSession(get("session")),
+      pilot, team: get("team") || "—",
+      lap: isFinite(lapNo) ? lapNo : null,
+      lapTime: T, boostUsed: B,
+      boostAtLine: (A0 !== null && isFinite(A0)) ? A0 : null,
+      lapType: normLapType(get("lapType"), lapNo),
+      depleted: dep === "y" || dep === "yes" || dep === "true" || dep === "1"
+    });
+  }
+  if (!rows.length) throw new Error("No usable lap rows found.");
+  return rows;
+}
+
+/* B_max = min(T, (2*A0 + T) / 3)  — see the derivation in the Boost view. */
+function boostMax(T, A0) {
+  const a = (A0 === null || A0 === undefined || !isFinite(A0)) ? BOOST.allowance : A0;
+  return Math.min(T, (2 * a + T) / 3);
+}
+function lapUtil(r) {
+  const bm = boostMax(r.lapTime, r.boostAtLine);
+  return bm > 0 ? r.boostUsed / bm : null;
+}
+
+/* Comparable laps only: standard laps, excluding lap 1, long and short. */
+function comparableLaps() {
+  return LAPS.rows.filter(r => r.lapType === "standard");
+}
+
+function boostStats() {
+  const rows = comparableLaps();
+  const byPilot = new Map();
+  rows.forEach(r => {
+    if (!byPilot.has(r.pilot)) byPilot.set(r.pilot, []);
+    byPilot.get(r.pilot).push(r);
+  });
+
+  // Regression of lap time on boost seconds across all comparable laps.
+  let slope = null, xbar = 0, ybar = 0;
+  if (rows.length >= 4) {
+    xbar = rows.reduce((a, r) => a + r.boostUsed, 0) / rows.length;
+    ybar = rows.reduce((a, r) => a + r.lapTime, 0) / rows.length;
+    const sxx = rows.reduce((a, r) => a + (r.boostUsed - xbar) ** 2, 0);
+    const sxy = rows.reduce((a, r) => a + (r.boostUsed - xbar) * (r.lapTime - ybar), 0);
+    if (sxx > 0) slope = sxy / sxx;
+  }
+
+  const out = [];
+  byPilot.forEach((rs, pilot) => {
+    const utils = rs.map(lapUtil).filter(u => u !== null);
+    const meanU = utils.length ? utils.reduce((a, b) => a + b, 0) / utils.length : null;
+    const meanT = rs.reduce((a, r) => a + r.lapTime, 0) / rs.length;
+    const meanB = rs.reduce((a, r) => a + r.boostUsed, 0) / rs.length;
+    let resid = null;
+    if (slope !== null) {
+      resid = rs.reduce((a, r) => a + (r.lapTime - (ybar + slope * (r.boostUsed - xbar))), 0) / rs.length;
+    }
+    out.push({
+      pilot, team: rs[0].team, laps: rs.length,
+      meanU, meanT, meanB,
+      headroom: rs.reduce((a, r) => a + (boostMax(r.lapTime, r.boostAtLine) - r.boostUsed), 0) / rs.length,
+      resid,
+      depletions: LAPS.rows.filter(r => r.pilot === pilot && r.depleted).length,
+      assumedA0: rs.filter(r => r.boostAtLine === null).length
+    });
+  });
+  return { pilots: out.sort((a, b) => (b.meanU ?? 0) - (a.meanU ?? 0)), slope, n: rows.length };
+}
+
+function saveLaps() { try { localStorage.setItem("e1laps", JSON.stringify(LAPS)); } catch (e) {} }
+function loadLaps() {
+  try { const r = localStorage.getItem("e1laps"); if (r) { const d = JSON.parse(r); if (d && Array.isArray(d.rows)) LAPS = d; } } catch (e) {}
+}
+const hasLaps = () => LAPS.rows.length > 0;
 
 /* ==========================================================================
    4. RENDER
@@ -1064,6 +1265,33 @@ Monaco	FINAL2	Drogba	Tara	4	2	1:23.980	27.980	31.744	24.256"></textarea>
         <p id="importMsg" class="note" style="margin-top:12px"></p>
       </div>
 
+<div class="card">
+        <h3 style="margin-bottom:10px">Per-lap boost data</h3>
+        <p class="note" style="margin-bottom:12px">A second, separate table &mdash; <strong>one row per lap</strong>, measured start/finish line to start/finish line. This is what powers the Boost maths page. Loading it does not disturb the session results above.</p>
+        <textarea id="pasteLaps" placeholder="event	session	pilot	team	lap	lapTime	boostUsed	boostAtLine	lapType	depleted
+Monaco	FINAL2	Tara	Drogba	2	1:24.100	14.5	20	standard	N
+Monaco	FINAL2	Tara	Drogba	3	1:23.880	16.2	11.2	standard	N
+Monaco	FINAL2	J Smith	Brady	2	1:23.900	9.8	20	standard	N"></textarea>
+        <div class="btnrow">
+          <button class="act" id="doImportLaps">Load lap data</button>
+          <button class="ghost" id="doLapTemplate">Copy lap template header</button>
+          <button class="ghost" id="doClearLaps">Clear lap data</button>
+        </div>
+        <p id="lapMsg" class="note" style="margin-top:12px"></p>
+        <div class="tw" style="margin-top:16px">
+          <table>
+            <thead><tr><th>Column</th><th>Required</th><th>What it holds</th></tr></thead>
+            <tbody>${LAP_SCHEMA.map(f => `
+              <tr>
+                <td><strong>${esc(f.col)}</strong></td>
+                <td>${f.req ? `<span class="rate strength">Yes</span>` : `<span class="rate neutral">Optional</span>`}</td>
+                <td>${esc(f.desc)}</td>
+              </tr>`).join("")}</tbody>
+          </table>
+          <p class="note" style="padding:10px 14px"><code>boostAtLine</code> is optional but strongly recommended &mdash; without it a full ${BOOST.allowance}s allowance is assumed, which inflates everyone&rsquo;s utilisation. Mark long and short laps in <code>lapType</code> so they are excluded from the comparison.</p>
+        </div>
+      </div>
+
       <div class="card">
         <h3>Columns</h3>
         <p class="note" style="margin:6px 0 12px">Header names are matched loosely and case-insensitively &mdash; <code>Pos</code>, <code>Finish</code> and <code>Position</code> all work. Only four are required.</p>
@@ -1150,6 +1378,214 @@ function viewSources() {
   </div>`;
 }
 
+/* ---- Course & marks ---- */
+function viewCourse() {
+  const KIND = { critical:"crit", start:"warn", turn:"neutral", long:"neutral", restart:"neutral", entry:"neutral", exit:"neutral" };
+  const cards = COURSES.map(c => `
+    <div class="card">
+      <div style="display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:4px">
+        <h3>${esc(c.name)}</h3>
+        <span class="chip">${esc(c.year)} · ${esc(c.round)}</span>
+      </div>
+      <p class="note">${esc(c.coords)}</p>
+      <div class="grid3" style="margin:14px 0">
+        <div class="tile"><span class="k eyebrow">Start / finish</span><span class="v" style="font-size:20px">${esc(c.startGate)}</span><span class="n">The timing gate. Every lap and every boost window begins and ends here.</span></div>
+        <div class="tile"><span class="k eyebrow">Lane released at</span><span class="v" style="font-size:20px">${esc(c.laneGate)}</span><span class="n">Hold lane and course until past it; racing rules apply only after.</span></div>
+        <div class="tile"><span class="k eyebrow">First mark</span><span class="v" style="font-size:20px">${esc(c.firstMark)}</span><span class="n">First turn of the race lap.</span></div>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr><th>Mark</th><th>Role</th><th>What the instructions say</th></tr></thead>
+          <tbody>${c.marks.map(m => `
+            <tr>
+              <td class="n"><strong>${esc(m.m)}</strong></td>
+              <td><span class="rate ${KIND[m.k] || "neutral"}">${esc(m.r)}</span></td>
+              <td>${esc(m.n)}</td>
+            </tr>`).join("")}</tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:12px"><strong>Boost rule as written for this event:</strong> ${esc(c.boostRule)}</p>
+    </div>`).join("");
+
+  return `
+  <div class="view">
+    <header>
+      <span class="eyebrow">Geometry</span>
+      <h2>Course &amp; marks</h2>
+      <p class="lede">The buoy schemes for the two courses whose Race Instructions are in your archive. The start/finish gate is <strong>T&nbsp;&ndash;&nbsp;T1</strong> at both &mdash; that is the reference point everything else in this app measures from.</p>
+    </header>
+    <div class="stack">
+      <div class="callout">
+        <span class="eyebrow">Where the start is</span>
+        <h3>T &ndash; T1, and it is the one gate you cannot miss</h3>
+        <p>Both Lagos and Jeddah use <strong>T&nbsp;&ndash;&nbsp;T1</strong> as the Start/Finish Gate. The green flag authorises you to cross it; until you are past the lane-release gate after it (<strong>A&nbsp;&ndash;&nbsp;Y</strong> at Jeddah, <strong>T2&nbsp;&ndash;&nbsp;Y</strong> at Lagos) you must hold your lane and course, and only then may you attack the first mark. Missing the gate is not survivable: jumping buoy T draws a long-lap or time penalty, and jumping T1 or any external safety buoy is disqualification for the session, plus a yellow card if it caused danger.</p>
+      </div>
+
+      <div class="card">
+        <span class="eyebrow">Honest answer</span>
+        <h3 style="margin:6px 0 8px">Why the buoys were missing until now</h3>
+        <p style="color:var(--ink-2); font-size:14px">They were missing because I had not built them &mdash; not because the system cannot hold them. The buoy names, roles and routes below are read out of the Race Instructions in your Drive. What I still cannot give you is the <strong>positions</strong>: every RI carries an <em>Appendix 1A &mdash; Buoy Points and Distances</em> with the actual coordinates and inter-buoy distances, and that appendix is a diagram, so text extraction returns nothing from it. If you want true geometry &mdash; sector lengths, distance between marks, a drawn course map &mdash; send me Appendix 1A as an image or type the coordinate table out, and it goes straight in.</p>
+      </div>
+
+      ${cards}
+
+      <div class="card">
+        <h3 style="margin-bottom:6px">Mark penalties &amp; the virtual circle</h3>
+        <p class="note" style="margin-bottom:10px">Worth knowing exactly, because a missed mark costs more than a slow lap.</p>
+        ${MARK_RULES.map(r => `
+          <div class="trait">
+            <div class="hd"><h4>${esc(r.t)}</h4></div>
+            <p style="color:var(--ink-2); font-size:13.5px">${esc(r.d)}</p>
+          </div>`).join("")}
+      </div>
+
+      <div class="callout">
+        <span class="eyebrow">A discrepancy worth checking</span>
+        <h3>The two documents disagree about when boost opens</h3>
+        <p>The <strong>Jeddah Race Instructions</strong> (Round 1, January 2026) say variable boost <em>&ldquo;may be activated at the start of each race only after crossing the start line.&rdquo;</em> The <strong>written sporting format</strong> published on 3 March 2026 says boost <em>&ldquo;is open from the starting yellow flag&rdquo;</em> &mdash; thirty seconds <em>before</em> green. The March document is later and should govern, but this is exactly the kind of clause that gets restated per event in the RIs. It matters directly: under one rule you arrive at T&ndash;T1 with a full 20 seconds, under the other you may already have spent some. Confirm it in the Pilots&rsquo; Briefing for each round before trusting any lap-1 boost number.</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---- Boost maths ---- */
+function viewBoost() {
+  const analysis = hasLaps() ? (() => {
+    const st = boostStats();
+    const rows = st.pilots.map((s2, i) => `
+      <tr${(s2.team||"").toLowerCase().includes(MY_TEAM.toLowerCase()) ? ' class="me"' : ""}>
+        <td class="n">${i + 1}</td>
+        <td><strong>${esc(s2.pilot)}</strong></td>
+        <td>${esc(s2.team)}</td>
+        <td class="n">${s2.meanU !== null ? (s2.meanU * 100).toFixed(1) + "%" : "—"}</td>
+        <td class="n">${s2.meanB.toFixed(1)}s</td>
+        <td class="n">${s2.headroom.toFixed(1)}s</td>
+        <td class="n">${s2.resid !== null ? (s2.resid > 0 ? "+" : "") + s2.resid.toFixed(3) : "—"}</td>
+        <td class="n">${s2.depletions}</td>
+        <td class="n">${s2.laps}</td>
+      </tr>`).join("");
+    return `
+    <div class="card">
+      <h3>Boost utilisation &amp; efficiency</h3>
+      <p class="note" style="margin:5px 0 16px">Standard laps only &mdash; lap 1, long laps and short laps are excluded, because they change lap duration and would corrupt the comparison. <strong>Util</strong> is boost used as a share of what the rules allowed in that lap. <strong>Headroom</strong> is the seconds left on the table. <strong>Δ vs boost</strong> is lap time against what this field&rsquo;s boost-to-laptime relationship predicts &mdash; negative means faster than their boost spend should buy.</p>
+      <div class="tw">
+        <table>
+          <thead><tr><th class="n">#</th><th>Pilot</th><th>Team</th><th class="n">Util</th><th class="n">Boost/lap</th><th class="n">Headroom</th><th class="n">Δ vs boost</th><th class="n">0% hits</th><th class="n">Laps</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        ${st.slope !== null ? `<p class="note" style="padding:10px 14px">Across ${st.n} comparable laps, one extra second of boost is worth <strong>${Math.abs(st.slope).toFixed(3)}s</strong> of lap time ${st.slope < 0 ? "gained" : "<strong>lost</strong> — which means boost is not currently buying pace in this sample, so look at where it is being spent rather than how much"}.</p>` : `<p class="note" style="padding:10px 14px">Not enough comparable laps yet to fit the boost-to-laptime relationship — four or more standard laps are needed.</p>`}
+        ${st.pilots.some(x => x.assumedA0 > 0) ? `<p class="note" style="padding:0 14px 10px">Some laps had no <code>boostAtLine</code> value, so a full ${BOOST.allowance}s allowance was assumed for those. That flatters utilisation — add the column for real numbers.</p>` : ""}
+      </div>
+    </div>`;
+  })() : `
+    <div class="empty">
+      <span class="eyebrow">No lap data yet</span>
+      <h3>This table needs one row per lap</h3>
+      <p>The calculator above works right now with numbers you type. To rank the whole field automatically, load per-lap boost data on the Load data page &mdash; the columns are listed there.</p>
+      <div class="btnrow"><button class="act" data-nav="import">Go to Load data</button></div>
+    </div>`;
+
+  return `
+  <div class="view">
+    <header>
+      <span class="eyebrow">Method</span>
+      <h2>Boost: are we underusing it?</h2>
+      <p class="lede">You are right that raw boost seconds cannot answer this, and right that the fix is to fix the measurement window at the start/finish line. Here is the maths that makes leaders and backmarkers comparable.</p>
+    </header>
+
+    <div class="stack">
+      <div class="callout">
+        <span class="eyebrow">Your instinct, checked</span>
+        <h3>Yes &mdash; a leader genuinely should use less boost, and it is measurable</h3>
+        <p>A boat 40 seconds behind is on the water 40 seconds longer, and boost <strong>regenerates</strong> at one second restored for every two seconds off. So that boat is handed roughly <strong>20 extra seconds of boost</strong> purely for being slow. Comparing raw totals therefore rewards being behind. It is not a fair number, and your suspicion that it is confounded is exactly correct.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:10px">The formula</h3>
+        <p style="color:var(--ink-2); font-size:14px; margin-bottom:12px">Boost is not a fixed budget &mdash; it is a regenerating one. Over a window of length <strong>T</strong> seconds, starting with <strong>A₀</strong> seconds of allowance in hand, you spend <strong>B</strong> and regenerate during the <strong>T − B</strong> seconds you are off it:</p>
+        <div class="tw"><table><tbody>
+          <tr><td>Spend cannot exceed stock plus regeneration</td><td class="n">B ≤ A₀ + ½(T − B)</td></tr>
+          <tr><td>Rearranged</td><td class="n">1.5·B ≤ A₀ + ½T</td></tr>
+          <tr><td><strong>Maximum deployable boost</strong></td><td class="n"><strong>B_max = min( T , (2·A₀ + T) / 3 )</strong></td></tr>
+          <tr><td><strong>Utilisation</strong></td><td class="n"><strong>U = B ÷ B_max</strong></td></tr>
+        </tbody></table></div>
+        <p class="note" style="margin-top:12px">As laps get longer the term (2A₀ + T)/3 approaches T/3 &mdash; so the sustainable ceiling is <strong>33.3% of elapsed time on boost</strong>, once the opening 20 seconds are gone. Burn for one second, wait two, repeat. That is the physical limit of the regulation, and U measures you against it rather than against each other.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:4px">Try it</h3>
+        <p class="note" style="margin-bottom:14px">Type a lap and see what the rules allowed.</p>
+        <div class="filters">
+          <label>Lap time (s) <input id="cT" type="number" value="84" step="0.1" style="width:90px; font:inherit; font-family:var(--mono); padding:7px 9px; border:1px solid var(--rule); border-radius:3px; background:var(--surface-2); color:var(--ink)"></label>
+          <label>Boost at line (s) <input id="cA" type="number" value="20" step="0.1" min="0" max="20" style="width:90px; font:inherit; font-family:var(--mono); padding:7px 9px; border:1px solid var(--rule); border-radius:3px; background:var(--surface-2); color:var(--ink)"></label>
+          <label>Boost used (s) <input id="cB" type="number" value="18" step="0.1" min="0" style="width:90px; font:inherit; font-family:var(--mono); padding:7px 9px; border:1px solid var(--rule); border-radius:3px; background:var(--surface-2); color:var(--ink)"></label>
+        </div>
+        <div class="grid3" id="calcOut"></div>
+      </div>
+
+      <div class="callout">
+        <span class="eyebrow">The second metric, and the more important one</span>
+        <h3>Utilisation is an input. Lap time is the output.</h3>
+        <p>Maxing utilisation is not the goal &mdash; a pilot at 100% U who is slow is simply wasting energy loudly. So the app also fits lap time against boost spent across every comparable lap, and reports each pilot&rsquo;s <strong>residual</strong>: are they faster or slower than their boost spend predicts? That is the number that separates skill from situation, and it is what actually tests the Brady hypothesis. If Brady really is running on/off, they will show <strong>moderate utilisation with a strongly negative residual</strong> &mdash; not spending the most, but getting the most from what they spend. A chasing boat shows the opposite: high utilisation, positive residual.</p>
+      </div>
+
+      ${analysis}
+
+      <div class="card">
+        <h3 style="margin-bottom:10px">What you must capture &mdash; and the one everyone forgets</h3>
+        <p style="color:var(--ink-2); font-size:14px; margin-bottom:12px">You identified the measurement window correctly: <strong>T&ndash;T1 to T&ndash;T1</strong>. But the window alone is not enough, because the allowance <em>carries across the line</em>. Crossing with 4 seconds in hand and crossing with 18 give completely different ceilings for the lap ahead. So the snapshot at the line is a required field, not a nice-to-have:</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Capture at / for each lap</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Lap time (T)</strong>, line to line</td><td>Sets the regeneration window, and so the ceiling</td></tr>
+              <tr><td><strong>Boost seconds used (B)</strong></td><td>The numerator</td></tr>
+              <tr><td><strong>Boost remaining crossing the line (A₀)</strong></td><td>The forgotten one. Without it the ceiling is guesswork</td></tr>
+              <tr><td><strong>Lap type</strong> — standard / long / short</td><td>Long and short laps distort T by roughly +12s and −10s. They must be excluded, not averaged in</td></tr>
+              <tr><td><strong>Did boost hit 0%</strong></td><td>A depletion costs a 5-second lockout plus about 2 seconds of nose-up instability — roughly 7 seconds of compromised running. That is an event, not a rate</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="margin-top:12px">Lap 1 is excluded from comparison automatically. Under the March format boost opens 30 seconds before green, so pilots reach the line already part-spent; under the Jeddah instructions it opened only after the line. Two different rules cannot share an average.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom:10px">Reading the result</h3>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Pattern</th><th>What it means</th><th>What to do</th></tr></thead>
+            <tbody>
+              <tr><td><span class="rate weakness">Low U, positive residual</span></td><td>Genuinely underusing boost and slow with it</td><td>The clearest case for change — there is free lap time sitting unused</td></tr>
+              <tr><td><span class="rate strength">Low U, negative residual</span></td><td>Underusing boost and still fast</td><td>Do not "fix" this. It is Brady's pattern — find where the reserve is being deployed</td></tr>
+              <tr><td><span class="rate risk">High U, positive residual</span></td><td>Spending everything and getting little</td><td>Placement problem, not quantity. Look at boost applied in corners versus straights</td></tr>
+              <tr><td><span class="rate neutral">High U, negative residual</span></td><td>Maximal and fast</td><td>At the limit of the regulation. Gains now come from elsewhere</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note" style="margin-top:12px">One caution on causation: on a course where boost genuinely does not buy time &mdash; a tight technical layout &mdash; the fitted slope can come out flat or positive across the whole field. That is a fact about the circuit, not about any pilot. Read the residuals only relative to each other, and re-fit per event rather than pooling across venues.</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCalc() {
+  const out = document.getElementById("calcOut");
+  if (!out) return;
+  const T = parseFloat(document.getElementById("cT").value);
+  const A = parseFloat(document.getElementById("cA").value);
+  const B = parseFloat(document.getElementById("cB").value);
+  if (![T, A, B].every(isFinite) || T <= 0) { out.innerHTML = `<p class="note">Enter a lap time above zero.</p>`; return; }
+  const bm = boostMax(T, A);
+  const u = bm > 0 ? B / bm : 0;
+  const head = bm - B;
+  const over = B > bm + 0.05;
+  const ceiling = (bm / T * 100);
+  out.innerHTML = `
+    <div class="tile"><span class="k eyebrow">Max deployable</span><span class="v">${bm.toFixed(1)}s</span><span class="n">The rules allowed this much in a ${T.toFixed(1)}s lap starting from ${A.toFixed(1)}s &mdash; ${ceiling.toFixed(0)}% of the lap</span></div>
+    <div class="tile"><span class="k eyebrow">Utilisation</span><span class="v" style="color:${over ? "var(--crit)" : u >= 0.85 ? "var(--good)" : u >= 0.6 ? "var(--warn)" : "var(--crit)"}">${(u * 100).toFixed(0)}%</span><span class="n">${over ? "Above the regulation ceiling — check the inputs, this lap is not physically possible" : u >= 0.85 ? "Near the ceiling" : u >= 0.6 ? "Moderate — reserve being held" : "Well under the ceiling"}</span></div>
+    <div class="tile"><span class="k eyebrow">Headroom</span><span class="v">${head.toFixed(1)}s</span><span class="n">${head > 0 ? "Seconds of boost left unspent in this lap" : "Nothing left on the table"}</span></div>`;
+}
+
 /* ==========================================================================
    5. ROUTER
    ========================================================================== */
@@ -1160,6 +1596,8 @@ const VIEWS = {
   qualifying:{ label: "Qualifying", render: viewQualifying },
   pace:      { label: "Pace & purple", render: viewPace },
   racecraft: { label: "Racecraft",  render: viewRacecraft },
+  boost:     { label: "Boost maths", render: viewBoost },
+  course:    { label: "Course & marks", render: viewCourse },
   intel:     { label: "Rival intel", render: viewIntel },
   format:    { label: "S3 format",  render: viewFormat },
   import:    { label: "Load data",  render: viewImport },
@@ -1167,8 +1605,8 @@ const VIEWS = {
 };
 
 const NAV_GROUPS = [
-  { title: "Performance", items: ["paddock", "pilots", "qualifying", "pace", "racecraft"] },
-  { title: "Scouting",    items: ["intel", "format"] },
+  { title: "Performance", items: ["paddock", "pilots", "qualifying", "pace", "racecraft", "boost"] },
+  { title: "Scouting",    items: ["intel", "course", "format"] },
   { title: "Data",        items: ["import", "sources"] }
 ];
 
@@ -1178,14 +1616,15 @@ function buildRail() {
   document.getElementById("rail").innerHTML = NAV_GROUPS.map(g => `
     <div class="grp">
       <span class="eyebrow">${g.title}</span>
-      ${g.items.map(k => `<button data-nav="${k}">${VIEWS[k].label}${k === "intel" ? `<span class="tag">${INTEL.length}</span>` : ""}${k === "import" && hasData() ? `<span class="tag">${DB.rows.length}</span>` : ""}</button>`).join("")}
+      ${g.items.map(k => `<button data-nav="${k}">${VIEWS[k].label}${k === "intel" ? `<span class="tag">${INTEL.length}</span>` : ""}${k === "import" && (hasData() || hasLaps()) ? `<span class="tag">${DB.rows.length + LAPS.rows.length}</span>` : ""}${k === "boost" && hasLaps() ? `<span class="tag">${LAPS.rows.length}</span>` : ""}</button>`).join("")}
     </div>`).join("");
 }
 
 function updateState() {
-  document.getElementById("dataState").textContent = hasData()
-    ? `${DB.rows.length} sessions · ${pilots().length} pilots · ${events().length} event(s)`
-    : "No timing data loaded";
+  const bits = [];
+  if (hasData()) bits.push(`${DB.rows.length} sessions · ${pilots().length} pilots · ${events().length} event(s)`);
+  if (hasLaps()) bits.push(`${LAPS.rows.length} laps`);
+  document.getElementById("dataState").textContent = bits.length ? bits.join(" · ") : "No timing data loaded";
 }
 
 function go(key, opts = {}) {
@@ -1195,7 +1634,12 @@ function go(key, opts = {}) {
   else { main.innerHTML = VIEWS[key].render(); current = key; }
   document.querySelectorAll("nav.rail button").forEach(b => b.setAttribute("aria-current", b.dataset.nav === current ? "true" : "false"));
   window.scrollTo({ top: 0, behavior: "instant" });
+  if (current === "boost") renderCalc();
 }
+
+document.addEventListener("input", (e) => {
+  if (["cT","cA","cB"].includes(e.target.id)) renderCalc();
+});
 
 document.addEventListener("click", (e) => {
   const nav = e.target.closest("[data-nav]");
@@ -1229,6 +1673,33 @@ document.addEventListener("click", (e) => {
     msg.textContent = "Template header inserted. Paste your rows beneath it, or match these names in Smartsheet and copy the whole block.";
     return;
   }
+if (e.target.id === "doImportLaps") {
+    const msg = document.getElementById("lapMsg");
+    try {
+      const rows = parseLaps(document.getElementById("pasteLaps").value);
+      LAPS = { rows, loadedAt: new Date().toISOString() };
+      saveLaps(); buildRail(); updateState();
+      const comp = comparableLaps().length;
+      msg.style.color = "var(--good)";
+      msg.textContent = `Loaded ${rows.length} laps (${comp} comparable standard laps). Open Boost maths to see utilisation and efficiency.`;
+    } catch (err) { msg.style.color = "var(--crit)"; msg.textContent = err.message; }
+    return;
+  }
+  if (e.target.id === "doLapTemplate") {
+    const ta = document.getElementById("pasteLaps");
+    ta.value = LAP_SCHEMA.map(f => f.col).join("\t") + "\n";
+    ta.focus();
+    const msg = document.getElementById("lapMsg");
+    msg.style.color = "var(--ink-muted)";
+    msg.textContent = "Lap template header inserted. Paste your rows beneath it.";
+    return;
+  }
+  if (e.target.id === "doClearLaps") {
+    LAPS = { rows: [], loadedAt: null };
+    saveLaps(); buildRail(); updateState(); go("import");
+    return;
+  }
+
   if (e.target.id === "doClear") {
     DB = { rows: [], loadedAt: null };
     save(); buildRail(); updateState(); go("import");
@@ -1237,6 +1708,7 @@ document.addEventListener("click", (e) => {
 });
 
 load();
+loadLaps();
 buildRail();
 updateState();
 go("paddock");
